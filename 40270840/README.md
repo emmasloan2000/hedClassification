@@ -1,5 +1,12 @@
 # HEdClass
 
+install dependencies
+create 40270840 database in phpmyadmin
+ensure root/password in config file match tour computer
+run seeder.js
+run app
+
+
 
 
 ## Getting started

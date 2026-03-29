@@ -1,15 +1,11 @@
-import mysql from 'mysql2';
+import db from '../config/db.js';
 import bcrypt from 'bcrypt';
 
-
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: '40270840',
-    multipleStatements: true
-});
-
+//allows for extensibility, rather tat hashing each password one by one
+const usersToSeed = [
+    {username: 'registry_admin', password: 'QUB2026', role_id: 1},
+    {username: 'class_officer', password: 'Queens2026', role_id: 2},
+];
 
 const schemaSQL = `
 -- DROP in reverse order of dependencies
@@ -83,11 +79,6 @@ const seedData = async () => {
     try{
         console.log("starting seeding...");
 
-    
-    const saltRounds = 10; // Base security measure 
-    const registryPass = await bcrypt.hash('admin123', saltRounds);
-    const officerPass = await bcrypt.hash('officer123', saltRounds);
-
     const dataSQL = `
     
     INSERT INTO roles (role_name) VALUES ('Registry Officer'), ('Classification Officer');
@@ -97,15 +88,8 @@ const seedData = async () => {
     ('BSc Computer Science'), 
     ('BA Fine Art');
 
-    
-    INSERT INTO users (username, password, role_id) VALUES 
-    ('registry_admin', '${registryPass}', 1),
-    ('class_officer', '${officerPass}', 2);
 
-    
-    INSERT INTO user_programmes (user_id, programme_id) VALUES (2, 1);
-
-    -- 5. Modules for BSc Computer Science (Ensuring 120 credits per level) 
+    --  Modules for BSc Computer Science (Ensuring 120 credits per level) 
     
     -- Level 1 (Year 1: Pass only, no contribution to classification)
     INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
@@ -125,7 +109,7 @@ const seedData = async () => {
     ('Concurrent Systems', 20, 3, 1), ('Cyber Security', 20, 3, 1), 
     ('User Experience', 20, 3, 1);
 
-    -- 6. Modules for BA Fine Art (programme_id: 2)
+    --  Modules for BA Fine Art (programme_id: 2)
 
     -- Level 1 (Year 1: Pass only)
     INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
@@ -259,23 +243,28 @@ const seedData = async () => {
     (14, 31, 65, 0), (14, 32, 66, 0), (14, 33, 67, 0), (14, 34, 64, 0);
         `;
 
-        connection.query(schemaSQL, (err) => {
-            if (err) throw err;
-            console.log("Tables reset and created");
+        await db.query(schemaSQL);
+        console.log("Tables reset and created");
 
-            connection.query(dataSQL, (err) => {
-                if (err) throw err;
+            await db.query(dataSQL)
                 console.log("All data seeded successfully");
-                connection.end();
-            })
-            
 
-        });
+        for (let user of usersToSeed){
+            const hashedPass = await bcrypt.hash(user.password, 10);
+            const userSQL = `INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)`;
+            await db.query(userSQL, [user.username, hashedPass, user.role_id]);
+
+        }
+
+        await db.query(`INSERT INTO user_programmes (user_id, programme_id) VALUES (2, 1)`)
+        
+                process.exit(0);
+            
     
 
     } catch (error) {
         console.log("seeding failed", error);
-        connection.end();
+        process.exit(1);
     }
 
 };

@@ -1,0 +1,53 @@
+.navbar {
+    min-height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: centre;
+    padding: 10px 0;
+}    
+
+.navbar img{
+    height: 300px;
+    width: auto; /*stops logo looking stretched*/
+    max-width: 90%; /*prevents hiting edge of screen/navbar*/
+    transition: height 0.3s ease; /*makes sixe change smoothly*/
+
+}
+
+.hero{
+    background-image: url(../media/building.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: top;
+    height: 800px;
+    padding-top: 120px;
+}
+
+.login-card{
+    background-color: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(0,0,0,0.1);
+    text-size-adjust: 12;
+}
+
+h1{
+    font-family: sans-serif;
+    font-size: 28px;
+    color: rgb(84, 84, 84);
+}
+
+.input-group{
+    justify-content: center;
+    display: flex;
+}
+
+@media (max-width: 768px){
+    .navbar img {
+        height: 150;
+    }
+
+    .navbar {
+        min-height: 60px;
+    }
+}
