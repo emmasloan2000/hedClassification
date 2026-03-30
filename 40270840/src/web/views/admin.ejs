@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles/ui.css">
+</head>
+
+<body>
+
+    <nav class="navbar2">
+        <div class="logo-container">
+            <img src="/media/logo.png" alt="Logo">
+        </div>
+        <div class="logout-container">
+            <a href="/login" class="button">Logout</a>
+        </div>
+    </nav>
+
+    <div class="button-container">
+        <div class="row">
+              <div class="d-grid gap-2">
+        <a href="/admin/addofficer" class="btn btn-primary" >Add New Officer</a>
+        <a href="/admin/addprogramme" class="btn btn-primary" >Add New Programme</a>
+    </div>
+    </div>
+
+    <div class="records-row">
+        <div class="row">
+  <div class="col-sm-6 mb-3 mb-sm-0">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Classification Officers</h5>
+        <p class="card-text">Status: Total of <%= counter %> Classification Officers</p>
+        <a href="/admin/viewofficers" class="btn btn-primary">View All Officers</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Degree Programmes</h5>
+        <p class="card-text">Status: Total of <%= pCounter %> Degree Programmes, <%= unassignedCounter %> unassigned</p>
+        <a href="/admin/viewprogrammes" class="btn btn-primary">View All Degree Programmes</a>
+        <a href="/admin/viewunassignedprogrammes" class="btn btn-primary">View Unassigned Degree Programmes</a>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+
+    
+
+
+</body>
+
+</html>

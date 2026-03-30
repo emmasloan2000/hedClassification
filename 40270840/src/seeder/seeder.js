@@ -4,7 +4,9 @@ import bcrypt from 'bcrypt';
 //allows for extensibility, rather tat hashing each password one by one
 const usersToSeed = [
     {username: 'registry_admin', password: 'QUB2026', role_id: 1},
-    {username: 'class_officer', password: 'Queens2026', role_id: 2},
+    {username: 'class_officer1', password: 'Queens2026', role_id: 2},
+    {username: 'class_officer2', password: 'password', role_id: 2},
+    {username: 'class_officer3', password: 'officer3', role_id: 2},
 ];
 
 const schemaSQL = `
@@ -17,7 +19,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS programmes;
 DROP TABLE IF EXISTS roles;
 
--- CREATE parent tables first
+
 CREATE TABLE roles (
     id INT AUTO_INCREMENT PRIMARY KEY,
     role_name VARCHAR(50) NOT NULL  
