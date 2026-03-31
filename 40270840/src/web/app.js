@@ -25,10 +25,44 @@ app.use(session({
 })
 );
 
+//global route protection
+app.use((req, res, next) => {
+  if (req.path === "/" || req.path === "/login"){
+    return next();
+  }
+  if (req.session.user){
+    return next();
+  }
+  res.redirect("/");
+});
+
+const isAdmin = (req, res, next) => {
+  if (req.session.user && req.session.user.role_id === 1){
+    next();
+  } else {
+    res.redirect("/");
+  }
+};
+
+const isOfficer = (req, res, next) => {
+  if (req.session.user && req.session.user.role_id === 2){
+    next();
+  } else {
+    res.redirect("/");
+  }
+};
+
 app.get("/", (req, res) => {
 
   res.render("login.ejs");
 });
+
+
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
+});
+
 
 app.post("/login", async (req, res) => {
 
@@ -47,7 +81,7 @@ app.post("/login", async (req, res) => {
     const userRole = user.role_id;
 
     if (isMatch) {
-      req.session.user = { id: user.id, username: user.username, role: user.role_id }
+      req.session.user = { id: user.id, username: user.username, role_id: user.role_id }
       if (userRole === 1) {
         console.log("redirecting to admin")
         res.redirect("/admin");
@@ -61,14 +95,25 @@ app.post("/login", async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).send(err);
+    res.status(500).send("Internal error");
   }
 
 });
 
-app.get("/admin", async (req, res) => {
+async function getUnassignedProgrammes() {
+   const unassignedProgrammesSQL = `SELECT programmes.* FROM programmes
+                                  LEFT JOIN user_programmes ON programmes.id = user_programmes.programme_id
+                                  WHERE user_programmes.programme_id IS NULL`;
 
-  if (req.session.user && req.session.user.role === 1) {
+    const [unassignedProgrammes] = await db.query(unassignedProgrammesSQL);
+    return unassignedProgrammes;
+}
+
+
+app.get("/admin", isAdmin, async (req, res) => {
+
+  try {
+    
     const allClassOfficers = `SELECT * FROM users WHERE users.role_id = 2`;
     const [officers] = await db.query(allClassOfficers);
 
@@ -79,41 +124,91 @@ app.get("/admin", async (req, res) => {
 
     const pCounter = programmes.length;
 
-    const unassignedProgrammesSQL = `SELECT programmes.* FROM programmes
-                                  LEFT JOIN user_programmes ON programmes.id = user_programmes.programme_id
-                                  WHERE user_programmes.programme_id IS NULL`;
+    const unassigned = await getUnassignedProgrammes();
 
-    const [unassignedProgrammes] = await db.query(unassignedProgrammesSQL);
-    const unassignedCounter = unassignedProgrammes.length;
+    const unassignedCounter = unassigned.length;
 
+    
     res.render("admin.ejs", { counter, pCounter, unassignedCounter });
-  } else {
-    res.redirect("/");
+
+    
+  } catch (error) {
+    console.error("Database error", error);
+    res.status(500).send("error");
+    
   }
+
 
 });
 
-app.get("/officer", (req, res) => {
 
-  if (req.session.user && req.session.user.role === 2) {
+app.get("/officer", isOfficer, (req, res) => {
+
+  
     res.render("officer.ejs");
-  } else {
-    res.redirect("/");
+ 
+  
+});
+
+
+app.get("/admin/addofficer", isAdmin, async (req, res) => {
+
+  try {
+
+    const unassignedProgrammes = await getUnassignedProgrammes();
+
+  res.render("addofficer.ejs", {unassignedProgrammes});
+    
+  } catch (error) {
+    console.error("Database error", error);
+    res.status(500).send("error");
   }
+
 });
 
-app.get("/admin/addofficer", (req, res) => {
 
-  res.render("addofficer.ejs");
+
+app.post("/admin/addofficer", isAdmin, async (req,res) => {
+  const { username, password, programme_ids } = req.body;
+
+  try {
+    
+  const hashedPass = await bcrypt.hash(password, 10);
+
+  const addOfficerSQL = `INSERT INTO users (username, password, role_id) VALUES (?, ?, 2)`;
+  const params = [username, hashedPass];
+
+  const [result] = await db.query(addOfficerSQL, params); 
+  const insertId = result.insertId;
+
+  if (programme_ids){
+    const idArray = Array.isArray(programme_ids) ? programme_ids : [programme_ids];
+
+    for (let p_id of idArray){
+    let insertProgrammeSQL = `INSERT INTO user_programmes (user_id, programme_id) VALUES (?, ?)`;
+    await db.query(insertProgrammeSQL, [insertId, p_id]);
+  }
+
+  }
+
+  res.redirect("/admin");
+
+   } catch (error) {
+    console.error("Error adding officer");
+    res.status(500).send("Database error");
+  }
+
 });
 
-app.get("/admin/addprogramme", (req, res) => {
+
+
+app.get("/admin/addprogramme", isAdmin, (req, res) => {
 
   res.render("addprogramme.ejs");
 });
 
-//remember to lock the routes
-//add logout route that ends session
+
+//navbar dry
 
 app.listen(PORT, (err) => {
   console.log(`listening on port http://localhost:${PORT}`);

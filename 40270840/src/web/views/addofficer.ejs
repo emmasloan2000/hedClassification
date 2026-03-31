@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,54 @@
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="/styles/ui.css">
 </head>
+
 <body>
-    
+    <nav class="navbar2">
+        <div class="logo-container">
+            <img src="/media/logo.png" alt="Logo">
+        </div>
+        <div class="logout-container">
+            <a href="/login" class="button">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+            
+            </div>
+            <div class="col-6">
+                <div class="form-container">
+                    <h4>New Classification Officer</h4>
+                <form action="/admin/addofficer" method="POST">
+                    <div class="mb-3">
+                        <label for="exampleUsername" class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" id="exampleInputusername">
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" id="exampleInputPassword1">
+                    </div>
+                    <div class="mb-3 form-check">
+                       <% unassignedProgrammes.forEach(item => { %>
+                            <div>
+                                <input name="programme_ids" type="checkbox" value="<%= item.id %>">
+                                <label> <%= item.programme_name %></label>
+                            </div>
+                        <% }) %>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+                </div>
+            </div>
+            <div class="col">
+                
+            </div>
+        </div>
+    </div>
+
+
+
 </body>
+
 </html>
