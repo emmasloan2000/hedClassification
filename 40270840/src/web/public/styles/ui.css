@@ -131,9 +131,23 @@ h1{
 
 }
 
+.container2{
+    background-image: url(../media/quad.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
 .form-container{
-    border-style: solid;
-    
+    border: 2px solid gray;
+    padding: 30px;
+    background-color: beige;
+    min-height: calc(100vh - 150px);
+   
+}
+
+.btn-primary{
+    background-color: #ab2323;
 }
 
 

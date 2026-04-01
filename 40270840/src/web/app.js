@@ -204,7 +204,57 @@ app.post("/admin/addofficer", isAdmin, async (req,res) => {
 
 app.get("/admin/addprogramme", isAdmin, (req, res) => {
 
-  res.render("addprogramme.ejs");
+  const baseRules = {
+        y1_weight: 0.00,             
+        y2_weight: 0.30,            
+        y3_weight: 0.70,             
+        min_1st: 70,                 
+        min_2_1: 60,                 
+        min_2_2: 50,                 
+        min_3rd: 40,                 
+        resit_capped: true,  
+        max_failed_credits_allowed: 0,        
+        min_compensation_mark: 40,   
+        dissertation_min_pass: 40    
+    };
+
+  res.render("addprogramme.ejs", { defaults: baseRules });
+});
+
+app.post("/admin/addprogramme", isAdmin, async (req,res) => {
+
+  try {
+
+  const { programme_name, y1_weight, y2_weight, y3_weight,
+    min_1st, min_2_1, min_2_2, min_3rd, max_failed_credits_allowed, 
+    min_compensation_mark, dissertation_min_pass
+   } = req.body;
+
+   //Handles weight values that don't total 1. Math.abs bc potential rounding issues.
+   const totalWeight = parseFloat(y1_weight)+parseFloat(y2_weight)+ parseFloat(y3_weight);
+   const difference = totalWeight - 1.0;
+   if (Math.abs(difference) > 0.001){
+    return res.status(400).send("Error. Yearly weighting must sum to 1.0")
+   }
+
+   const resit_capped = req.body.resit_capped ? 1:0;
+
+  const addProgrammeSQL = `INSERT INTO programmes (programme_name, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  const params = [programme_name, y1_weight, y2_weight, y3_weight,
+    min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, 
+    min_compensation_marks, dissertation_min_pass];
+
+  const [result] = await db.query(addProgrammeSQL, params); 
+
+  res.redirect("/admin");
+
+   } catch (error) {
+    console.error("Error adding programme");
+    res.status(500).send("Database error");
+  }
+
 });
 
 

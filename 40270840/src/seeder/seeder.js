@@ -27,7 +27,19 @@ CREATE TABLE roles (
 
 CREATE TABLE programmes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    programme_name VARCHAR(255) NOT NULL 
+    programme_name VARCHAR(255) NOT NULL,
+    y1_weight DECIMAL (3,2) DEFAULT 0.00,
+    y2_weight DECIMAL (3,2) DEFAULT 0.30,
+    y3_weight DECIMAL (3,2) DEFAULT 0.70,
+    min_1st INT DEFAULT 70,
+    min_2_1 INT DEFAULT 60,
+    min_2_2 INT DEFAULT 50,
+    min_3rd INT DEFAULT 40,
+    resit_capped BOOLEAN DEFAULT TRUE,
+    max_failed_credits_allowed INT DEFAULT 0,
+    min_compensation_mark INT DEFAULT 30,
+    dissertation_min_pass INT DEFAULT 40
+
 );
 
 CREATE TABLE users (
@@ -86,9 +98,21 @@ const seedData = async () => {
     INSERT INTO roles (role_name) VALUES ('Registry Officer'), ('Classification Officer');
 
  
-    INSERT INTO programmes (programme_name) VALUES 
-    ('BSc Computer Science'), 
-    ('BA Fine Art');
+    INSERT INTO programmes (programme_name, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass) 
+    VALUES 
+    
+    ('BSc Computer Science', 0.30, 0.70, TRUE, 20, 30, 40),
+
+   
+    ('BA Fine Art', 0.50, 0.50, FALSE, 0, 30, 30),
+
+    
+    ('BSc Mathematics', 0.30, 0.70, TRUE, 0, 30, 40),
+    ('BA French', 0.30, 0.70, TRUE, 0, 30, 40),
+    ('BA History', 0.30, 0.70, TRUE, 0, 30, 40),
+    ('BSc Psychology', 0.30, 0.70, TRUE, 0, 30, 40);
+    
+
 
 
     --  Modules for BSc Computer Science (Ensuring 120 credits per level) 
