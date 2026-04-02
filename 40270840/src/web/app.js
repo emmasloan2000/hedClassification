@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: 'thisisasecret',
-  saveUninitialized: true,
+  saveUninitialized: false,
   resave: false,
   cookie: { secure: false }
 })
@@ -37,6 +37,7 @@ app.use((req, res, next) => {
 });
 
 const isAdmin = (req, res, next) => {
+  console.log(req.session);
   if (req.session.user && req.session.user.role_id === 1){
     next();
   } else {
@@ -82,6 +83,8 @@ app.post("/login", async (req, res) => {
 
     if (isMatch) {
       req.session.user = { id: user.id, username: user.username, role_id: user.role_id }
+      req.session.save();
+        
       if (userRole === 1) {
         console.log("redirecting to admin")
         res.redirect("/admin");
@@ -244,7 +247,7 @@ app.post("/admin/addprogramme", isAdmin, async (req,res) => {
 
   const params = [programme_name, y1_weight, y2_weight, y3_weight,
     min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, 
-    min_compensation_marks, dissertation_min_pass];
+    min_compensation_mark, dissertation_min_pass];
 
   const [result] = await db.query(addProgrammeSQL, params); 
 
@@ -257,8 +260,73 @@ app.post("/admin/addprogramme", isAdmin, async (req,res) => {
 
 });
 
+app.get("/admin/viewofficers", isAdmin, async (req, res) => {
+
+  const searchQuery = req.query.search || "";
+
+  let selectAllOfficers = `SELECT users.id as user_id, users.first_name, users.last_name, users.username, users.password, 
+  GROUP_CONCAT(programmes.programme_name SEPARATOR ', ') as assigned_programmes 
+  FROM users
+  LEFT JOIN user_programmes ON users.id = user_programmes.user_id
+  LEFT JOIN programmes ON user_programmes.programme_id = programmes.id
+  WHERE users.role_id = 2`;
+
+
+  const params = [];
+
+  if (searchQuery){
+    selectAllOfficers += ` AND (users.first_name LIKE ? OR users.last_name LIKE ? OR programmes.programme_name LIKE ?)`;
+    const term = `%${searchQuery}%`;
+    //% wildcard allows for partial matches
+    params.push(term, term, term);
+  }
+
+  selectAllOfficers += ` GROUP BY users.id`;
+
+  try {
+     const [officers] = await db.query(selectAllOfficers, params);
+     console.log("Officers Data:", officers);
+  res.render("viewofficers", { officers, searchQuery });
+  } catch (error) {
+    console.log("FULL SQL ERROR:", error.sqlMessage); 
+    res.status(500).send("Database Error: " + error.sqlMessage);
+  }
+
+});
+
+
+
+app.get("/admin/officerinfo/:user_id", isAdmin, async (req, res) => {
+
+  const user_id = req.params.user_id;
+  
+  let selectOfficer = `SELECT users.id as user_id, users.first_name, users.last_name, users.username, users.password, 
+  GROUP_CONCAT(programmes.programme_name SEPARATOR ', ') as assigned_programmes 
+  FROM users
+  LEFT JOIN user_programmes ON users.id = user_programmes.user_id
+  LEFT JOIN programmes ON user_programmes.programme_id = programmes.id
+  WHERE users.id = ? AND users.role_id = 2`;
+
+  const [info] = await db.query(selectOfficer, [user_id]);
+  
+  const officer = info[0] || {};
+
+  const currentProgrammes = [officer.assigned_programmes];
+
+  const unassignedProgrammes = await getUnassignedProgrammes();
+
+  res.render("officerinfo", { officer, unassignedProgrammes, currentProgrammes});
+
+});
+
 
 //navbar dry
+//change name of app.js and entry point in package.json
+//messages if no officers found etc.
+//viewofficers. button to go back to full list after filtering
+//getting kicked back to login??
+//post hash password in officerinfo edit
+//fix officerinfo route for assigned programmes
 
 app.listen(PORT, (err) => {
   console.log(`listening on port http://localhost:${PORT}`);

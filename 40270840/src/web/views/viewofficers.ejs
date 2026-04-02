@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Officers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles/ui.css">
+</head>
+
+<body>
+    <nav class="navbar2">
+        <div class="logo-container">
+            <img src="/media/logo.png" alt="Logo">
+        </div>
+        <div class="logout-container">
+            <a href="/login" class="button">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container-officer-info">
+
+    <div class="row heading-container">
+        <h1>All Classification Officers</h1>
+        <h2>Click to edit officer details</h2>
+        <nav class="heading">
+            <div class="container-fluid">
+                <form action="/admin/viewofficers" method="GET" class="d-flex" role="search">
+                    <input name="search" class="form-control" type="search" placeholder="Search by name or programme" aria-label="Search" />
+                    <button class="btn btn-outline-secondary bg-secondary text-white" type="submit">Search</button>
+                </form>
+            </div>
+        </nav>
+    </div>
+
+    <div class="row mb-4 officer-list-row">
+        <div class="allOfficers">
+
+           <% officers.forEach( (officer) => { %>
+            
+            <div class="item p-3 border mb-2 bg-white bg-opacity-70">
+                <a href="/admin/officerinfo/<%= officer.user_id %>">
+                    <div class="fw-bold"><%= officer.first_name%> <%=officer.last_name %></div>
+                    <div class="text-muted small">Assigned Programmes: <%= officer.assigned_programmes || 'None assigned' %></div>
+                </a>
+            </div>
+            
+            <% } ); %>
+
+        </div>
+    </div>
+    </div>
+    </div>
+
+
+
+
+
+
+
+
+
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

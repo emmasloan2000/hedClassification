@@ -3,10 +3,10 @@ import bcrypt from 'bcrypt';
 
 //allows for extensibility, rather tat hashing each password one by one
 const usersToSeed = [
-    {username: 'registry_admin', password: 'QUB2026', role_id: 1},
-    {username: 'class_officer1', password: 'Queens2026', role_id: 2},
-    {username: 'class_officer2', password: 'password', role_id: 2},
-    {username: 'class_officer3', password: 'officer3', role_id: 2},
+    {first_name: 'Ellie', last_name: 'Smith', username: 'registry_admin', password: 'QUB2026', role_id: 1},
+    {first_name: 'John', last_name: 'Rooney', username: 'class_officer1', password: 'Queens2026', role_id: 2},
+    {first_name: 'Elena', last_name: 'Gilbert', username: 'class_officer2', password: 'password', role_id: 2},
+    {first_name: 'Meredith', last_name: 'Gray', username: 'class_officer3', password: 'officer3', role_id: 2},
 ];
 
 const schemaSQL = `
@@ -37,13 +37,15 @@ CREATE TABLE programmes (
     min_3rd INT DEFAULT 40,
     resit_capped BOOLEAN DEFAULT TRUE,
     max_failed_credits_allowed INT DEFAULT 0,
-    min_compensation_mark INT DEFAULT 30,
+    min_compensation_mark INT DEFAULT 40,
     dissertation_min_pass INT DEFAULT 40
 
 );
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
     username VARCHAR(100) NOT NULL UNIQUE, 
     password VARCHAR(255) NOT NULL,  
     role_id INT,
@@ -101,16 +103,16 @@ const seedData = async () => {
     INSERT INTO programmes (programme_name, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass) 
     VALUES 
     
-    ('BSc Computer Science', 0.30, 0.70, TRUE, 20, 30, 40),
+    ('BSc Computer Science', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 20, 40, 40),
 
    
-    ('BA Fine Art', 0.50, 0.50, FALSE, 0, 30, 30),
+    ('BA Fine Art', 0.00, 0.50, 0.50, 70, 60, 50, 40, FALSE, 0, 40, 30),
 
     
-    ('BSc Mathematics', 0.30, 0.70, TRUE, 0, 30, 40),
-    ('BA French', 0.30, 0.70, TRUE, 0, 30, 40),
-    ('BA History', 0.30, 0.70, TRUE, 0, 30, 40),
-    ('BSc Psychology', 0.30, 0.70, TRUE, 0, 30, 40);
+    ('BSc Mathematics', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
+    ('BA French', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
+    ('BA History', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
+    ('BSc Psychology', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40);
     
 
 
@@ -277,8 +279,8 @@ const seedData = async () => {
 
         for (let user of usersToSeed){
             const hashedPass = await bcrypt.hash(user.password, 10);
-            const userSQL = `INSERT INTO users (username, password, role_id) VALUES (?, ?, ?)`;
-            await db.query(userSQL, [user.username, hashedPass, user.role_id]);
+            const userSQL = `INSERT INTO users (first_name, last_name, username, password, role_id) VALUES (?, ?, ?, ?, ?)`;
+            await db.query(userSQL, [user.first_name, user.last_name, user.username, hashedPass, user.role_id]);
 
         }
 
