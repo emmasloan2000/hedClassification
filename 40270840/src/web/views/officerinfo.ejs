@@ -23,52 +23,76 @@
     <div class="container2">
         <div class="row">
             <div class="col">
-            
+
             </div>
             <div class="col-12 col-md-6">
                 <div class="form-container">
                     <h4>Edit Classification Officer</h4>
-                <form action="/admin/officerinfo/:user_id" method="POST">
-                     <div class="mb-3">
-                        <label for="first_name" class="form-label">First Name</label>
-                        <input type="text" name="first_name" class="form-control" id="first_name" value="<%= officer.first_name %>">
-                    </div>
-                     <div class="mb-3">
-                        <label for="last_name" class="form-label">Last Name</label>
-                        <input type="text" name="last_name" class="form-control" id="last_name" value="<%= officer.last_name %>">
-                    </div>
-                    <div class="mb-3">
-                        <label for="exampleUsername" class="form-label">Username</label>
-                        <input type="text" name="username" class="form-control" id="exampleInputusername" value="<%= officer.username %>">
-                    </div>
-                    <div class="mb-3">
-                        <label for="exampleInputPassword1" class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" id="exampleInputPassword1" value="<%= officer.password %>">
-                    </div>
-                    <div class="mb-3 form-check">
-                        <h5>Officer's Assigned Programmes</h5>
-                       <% unassignedProgrammes.forEach(item => { %>
-                            <div>
-                                <input name="programme_ids" type="checkbox" value="<%= item.id %>">
-                                <label> <%= item.programme_name %></label>
+                    <form action="/admin/officerinfo/<%= officer.user_id %>" method="POST">
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" name="first_name" class="form-control" id="first_name"
+                                value="<%= officer.first_name %>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" id="last_name"
+                                value="<%= officer.last_name %>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleUsername" class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" id="exampleInputusername"
+                                value="<%= officer.username %>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputPassword1" class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" id="exampleInputPassword1">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <h5>Degree Programmes</h5>
+
+                            <div class="d-flex flex-row align-items-start gap-5">
+
+                                <div>
+
+                                    <p><strong>Currently Assigned:</strong></p>
+
+                                    <% currentProgrammes.forEach(item=> { %>
+                                        <div class="form-check">
+                                            <input name="programme_ids" type="checkbox" value="<%= item.id %>" checked>
+                                            <label>
+                                                <%= item.programme_name %>
+                                            </label>
+                                        </div>
+                                        <% }) %>
+                                </div>
+
                             </div>
-                        <% }) %>
-                          <% currentProgrammes.forEach(item => { %>
+
                             <div>
-                                <input name="programme_ids" type="checkbox" value="<%= item.id %>">
-                                <label> <%= item.programme_name %></label>
+
+                                <p><strong>Available to Assign:</strong></p>
+
+                                <% unassignedProgrammes.forEach(item=> { %>
+                                    <div class="form-check">
+                                        <input name="programme_ids" type="checkbox" value="<%= item.id %>">
+                                        <label>
+                                            <%= item.programme_name %>
+                                        </label>
+                                    </div>
+                                    <% }) %>
                             </div>
-                        <% }) %>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
                 </div>
             </div>
             <div class="col">
-                
+
             </div>
         </div>
-    </div>
+
 
 
 

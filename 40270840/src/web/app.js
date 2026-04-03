@@ -4,9 +4,13 @@ import path from "path";
 import bcrypt from 'bcrypt';
 import { fileURLToPath } from "url";
 import db from '../config/db.js';
+import MySQLStoreFactory from 'express-mysql-session';
 
+
+const MySQLStore = MySQLStoreFactory(session);
 const app = express();
 const PORT = 3000;
+const sessionStore = new MySQLStore({}, db);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +23,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: 'thisisasecret',
+  store: sessionStore,
   saveUninitialized: false,
   resave: false,
   cookie: { secure: false }
@@ -27,12 +32,18 @@ app.use(session({
 
 //global route protection
 app.use((req, res, next) => {
+  console.log(`Checking Access for: ${req.path}`);
   if (req.path === "/" || req.path === "/login"){
     return next();
   }
+
+  if (req.path.includes('.')) return next();
+
   if (req.session.user){
+    console.log(`User ${req.session.user.username} is authorized for ${req.path}`);
     return next();
   }
+  console.log(`!!! Unauthorized access to ${req.path}. Redirecting to login.`);
   res.redirect("/");
 });
 
@@ -83,14 +94,15 @@ app.post("/login", async (req, res) => {
 
     if (isMatch) {
       req.session.user = { id: user.id, username: user.username, role_id: user.role_id }
-      req.session.save();
-        
-      if (userRole === 1) {
+      req.session.save((err) => {
+
+         if (userRole === 1) {
         console.log("redirecting to admin")
         res.redirect("/admin");
       } else {
         res.redirect("/officer");
       }
+      });
 
     } else {
       res.send("Password incorrect");
@@ -172,14 +184,14 @@ app.get("/admin/addofficer", isAdmin, async (req, res) => {
 
 
 app.post("/admin/addofficer", isAdmin, async (req,res) => {
-  const { username, password, programme_ids } = req.body;
+  const { first_name, last_name, username, password, programme_ids } = req.body;
 
   try {
     
   const hashedPass = await bcrypt.hash(password, 10);
 
-  const addOfficerSQL = `INSERT INTO users (username, password, role_id) VALUES (?, ?, 2)`;
-  const params = [username, hashedPass];
+  const addOfficerSQL = `INSERT INTO users (fisrt_name, last_name, username, password, role_id) VALUES (?, ?, ?, ?, 2)`;
+  const params = [first_name, last_name, username, hashedPass];
 
   const [result] = await db.query(addOfficerSQL, params); 
   const insertId = result.insertId;
@@ -224,6 +236,8 @@ app.get("/admin/addprogramme", isAdmin, (req, res) => {
   res.render("addprogramme.ejs", { defaults: baseRules });
 });
 
+
+
 app.post("/admin/addprogramme", isAdmin, async (req,res) => {
 
   try {
@@ -259,6 +273,8 @@ app.post("/admin/addprogramme", isAdmin, async (req,res) => {
   }
 
 });
+
+
 
 app.get("/admin/viewofficers", isAdmin, async (req, res) => {
 
@@ -299,19 +315,17 @@ app.get("/admin/viewofficers", isAdmin, async (req, res) => {
 app.get("/admin/officerinfo/:user_id", isAdmin, async (req, res) => {
 
   const user_id = req.params.user_id;
-  
-  let selectOfficer = `SELECT users.id as user_id, users.first_name, users.last_name, users.username, users.password, 
-  GROUP_CONCAT(programmes.programme_name SEPARATOR ', ') as assigned_programmes 
-  FROM users
-  LEFT JOIN user_programmes ON users.id = user_programmes.user_id
-  LEFT JOIN programmes ON user_programmes.programme_id = programmes.id
-  WHERE users.id = ? AND users.role_id = 2`;
 
-  const [info] = await db.query(selectOfficer, [user_id]);
+  const [info] = await db.query(`SELECT id as user_id, first_name, last_name, username FROM users WHERE id = ? AND role_id = 2`, [user_id]);
   
   const officer = info[0] || {};
+  
+  const currentProgrammesSQL = `SELECT programmes.id, programmes.programme_name
+  FROM programmes
+  JOIN user_programmes ON programmes.id = user_programmes.programme_id
+  WHERE user_programmes.user_id = ?`;
 
-  const currentProgrammes = [officer.assigned_programmes];
+  const [currentProgrammes] = await db.query(currentProgrammesSQL, [user_id]);
 
   const unassignedProgrammes = await getUnassignedProgrammes();
 
@@ -320,13 +334,132 @@ app.get("/admin/officerinfo/:user_id", isAdmin, async (req, res) => {
 });
 
 
+
+app.post("/admin/officerinfo/:user_id", isAdmin, async (req,res) => {
+
+  const user_id = req.params.user_id;
+  const { first_name, last_name, username, password, programme_ids } = req.body;
+
+  try{
+
+  let editOfficerSQL = `UPDATE users SET first_name = ?, last_name = ?, username = ?`;
+  let params = [first_name, last_name, username];
+
+  if (password && password.trim() != ""){
+
+    const hashedPass = await bcrypt.hash(password, 10);
+    editOfficerSQL += `, password = ?`;
+    params.push(hashedPass);
+
+  } 
+
+  editOfficerSQL += ` WHERE id = ?`;
+  params.push(user_id);
+
+  await db.query(editOfficerSQL, params);
+
+  await db.query(`DELETE FROM user_programmes WHERE user_id = ?`, [user_id]);
+
+   if (programme_ids){
+    const idArray = Array.isArray(programme_ids) ? programme_ids : [programme_ids];
+
+    for (let p_id of idArray){
+    await db.query(`INSERT INTO user_programmes (user_id, programme_id) VALUES (?, ?)`, [user_id, p_id]);
+  }
+
+  }
+
+  res.redirect("/admin/viewofficers");
+
+   } catch (error) {
+    console.error("Error updating officer");
+    res.status(500).send("Database error");
+  }
+
+});
+
+
+app.get("/admin/viewprogrammes", isAdmin, async (req, res) => {
+
+  const searchQuery = req.query.search || "";
+
+  let selectAllProgrammes = `SELECT * FROM programmes WHERE 1 = 1`;
+
+
+  const params = [];
+
+  if (searchQuery){
+    selectAllProgrammes += ` AND (programmes.programme_name LIKE ?)`;
+    const term = `%${searchQuery}%`;
+    //% wildcard allows for partial matches
+    params.push(term);
+  }
+
+  try {
+     const [programmes] = await db.query(selectAllProgrammes, params);
+     console.log("Programmes Data:", programmes);
+  res.render("viewprogrammes", { programmes, searchQuery });
+  } catch (error) {
+    console.log("FULL SQL ERROR:", error.sqlMessage); 
+    res.status(500).send("Database Error: " + error.sqlMessage);
+  }
+
+});
+
+
+app.get("/admin/programmeinfo/:programme_id", isAdmin, async (req, res) => {
+
+  const programme_id = req.params.programme_id;
+
+  const [programmeinfo] = await db.query(`SELECT * FROM programmes WHERE id = ?`, [programme_id]);
+  
+  const programme = programmeinfo[0] || {};
+
+  res.render("programmeinfo", { programme });
+
+});
+
+
+app.post("/admin/programmeinfo/:programme_id", isAdmin, async (req,res) => {
+
+  const programme_id = req.params.programme_id;
+  const { programme_name, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, 
+    max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass } = req.body;
+
+  try{
+
+   const totalWeight = parseFloat(y1_weight)+parseFloat(y2_weight)+ parseFloat(y3_weight);
+   const difference = totalWeight - 1.0;
+
+   if (Math.abs(difference) > 0.001){
+    return res.status(400).send("Error. Yearly weighting must sum to 1.0")
+   }
+
+   const resit_capped = req.body.resit_capped ? 1 : 0;
+
+  let editProgrammeSQL = `UPDATE programmes SET programme_name = ?, y1_weight = ?, y2_weight = ?, y3_weight = ?, min_1st = ?, min_2_1 = ?, min_2_2 = ?, min_3rd = ?, resit_capped = ?, 
+    max_failed_credits_allowed = ?, min_compensation_mark = ?, dissertation_min_pass = ? WHERE id = ?`;
+
+  const params = [programme_name, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, 
+    max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass, programme_id];
+
+  await db.query(editProgrammeSQL, params);
+
+  res.redirect("/admin/viewprogrammes");
+
+   } catch (error) {
+    console.error("Error updating officer");
+    res.status(500).send("Database error");
+  }
+
+});
+
+
+
 //navbar dry
 //change name of app.js and entry point in package.json
 //messages if no officers found etc.
 //viewofficers. button to go back to full list after filtering
-//getting kicked back to login??
-//post hash password in officerinfo edit
-//fix officerinfo route for assigned programmes
 
 app.listen(PORT, (err) => {
   console.log(`listening on port http://localhost:${PORT}`);

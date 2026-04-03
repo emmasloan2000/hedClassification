@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Programme</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles/ui.css">
+</head>
+
+<body>
+    <nav class="navbar2">
+        <div class="logo-container">
+            <img src="/media/logo.png" alt="Logo">
+        </div>
+        <div class="logout-container">
+            <a href="/login" class="button">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container2">
+        <div class="row">
+            <div class="col-lg-8 col-xl-6 mx-auto">
+
+                <div class="form-container">
+
+                    <h4>Edit Degree programme</h4>
+
+
+                    <form action="/admin/programmeinfo/<%= programme.id %>" method="POST">
+
+                        <div class="mb-4">
+                            <label for="programme_name" class="form-label">Programme title</label>
+                            <input type="text" name="programme_name" class="form-control" id="programme_name"
+                                value="<%= programme.programme_name %>">
+                        </div>
+                        <div class="row">
+                            <h6>Yearly weightings (Decimals)</h6>
+                            <div class="row">
+                                <div class="col-12 col-sm-4">
+                                    <label class="small text-muted">Year 1</label>
+                                    <input type="number" name="y1_weight" step="0.01" min="0" max="1"
+                                        class="form-control" value="<%= programme.y1_weight %>">
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label class="small text-muted">Year 2</label>
+                                    <input type="number" name="y2_weight" step="0.01" min="0" max="1"
+                                        class="form-control" value="<%= programme.y2_weight %>">
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label class="small text-muted">Year 3</label>
+                                    <input type="number" name="y3_weight" step="0.01" min="0" max="1"
+                                        class="form-control" value="<%= programme.y3_weight %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <h6>Minimum Marks for Honours</h6>
+                            <div class="row">
+                                <div class="col-12 col-sm-3">
+                                    <label class="small text-muted">1st</label>
+                                    <input type="number" name="min_1st" min="0" max="100" class="form-control"
+                                        value="<%= programme.min_1st %>">
+                                </div>
+                                <div class="col-12 col-sm-3">
+                                    <label class="small text-muted">2:1</label>
+                                    <input type="number" name="min_2_1" min="0" max="100" class="form-control"
+                                        value="<%= programme.min_2_1 %>">
+                                </div>
+                                <div class="col-12 col-sm-3">
+                                    <label class="small text-muted">2:2</label>
+                                    <input type="number" name="min_2_2" min="0" max="100" class="form-control"
+                                        value="<%= programme.min_2_2 %>">
+                                </div>
+                                <div class="col-12 col-sm-3">
+                                    <label class="small text-muted">3rd</label>
+                                    <input type="number" name="min_3rd" min="0" max="100" class="form-control"
+                                        value="<%= programme.min_3rd %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-end">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="resit_capped"
+                                        id="resit_capped" <%= programme.resit_capped ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="resit_capped">Resits Capped at 40%</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="max_failed_credits" class="form-label small fw-bold">Max Failed Credits
+                                    Allowed</label>
+                                <select name="max_failed_credits_allowed" id="max_failed_credits" class="form-select">
+                                    <option value="0"<%= programme.max_failed_credits_allowed == 0 ? 'selected' : '' %>>0 Credits</option>
+                                    <option value="20"<%= programme.max_failed_credits_allowed == 20 ? 'selected' : '' %>>20 Credits (1 Module)</option>
+                                    <option value="40"<%= programme.max_failed_credits_allowed == 40 ? 'selected' : '' %>>40 Credits</option>
+                                    <option value="60"<%= programme.max_failed_credits_allowed == 60 ? 'selected' : '' %>>60 Credits</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col">
+                                <h6>Minimum Compensation Mark</h6>
+                                <input type="number" name="min_compensation_mark" min="0" max="100" class="form-control"
+                                    value="<%= programme.min_compensation_mark %>">
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6>Dissertation Minimum Pass Mark</h6>
+                                <input type="number" name="dissertation_min_pass" min="0" max="100" class="form-control"
+                                    value="<%= programme.dissertation_min_pass %>">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                
+                </form>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
