@@ -152,10 +152,25 @@ h1{
 
 .container-officer-info{
     background-image: url(../media/building.jpg);
-     background-repeat: no-repeat;
+    background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
     min-height: 100vh;
+      display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.container-fluid {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px
+}
+
+.heading-container {
+    display: flex;
+    align-items: center;
 }
 
 

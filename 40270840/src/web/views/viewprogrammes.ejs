@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Officers</title>
+    <title>View Programmes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="/styles/ui.css">
@@ -22,21 +22,39 @@
 
     <div class="container-officer-info">
 
-        <div class="row heading-container">
-            <h1>All Degree Programmes</h1>
-            <h2>Click to edit programme details</h2>
-            <nav class="heading">
-                <div class="container-fluid">
-                    <form action="/admin/viewprogrammes" method="GET" class="d-flex" role="search">
-                        <input name="search" class="form-control" type="search"
-                            placeholder="Search by programme name" aria-label="Search" />
-                        <button class="btn btn-outline-secondary bg-secondary text-white" type="submit">Search</button>
-                    </form>
+
+        <div class="row heading-container pb-1">
+            <div class="row p-1 text-center">
+                <h1>All Degree Programmes</h1>
+                <h2>Click to edit programme details</h2>
+            </div>
+            <nav class="heading p-1">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="container-fluid">
+                            <form action="/admin/viewprogrammes" method="GET" class="d-flex" role="search">
+                                <input name="search" class="form-control" type="search"
+                                    placeholder="Search by programme name, award type or academic year"
+                                    aria-label="Search" />
+                                <button class="btn btn-outline-secondary bg-secondary text-white"
+                                    type="submit">Search</button>
+                                    </form>
+                            <form action="/admin/viewofficers" method="GET" class="d-flex">
+                                <input type="hidden" name="search" value="<%= currentSearch %>">
+                                <select class="form-select" name="filter">
+                                    <option value="All" <%= (!currentFilter ||currentFilter === 'All') ? 'selected' : '' %>>All</option>
+                                    <option value="Assigned" <%= currentFilter === 'Assigned' ? 'selected' : '' %>>Assigned</option>
+                                    <option value="Unassigned" <%= currentFilter === 'Unassigned' ? 'selected' : '' %>>Unassigned</option>
+                                </select>
+                                <button type="submit" class="btn btn-secondary">Filter</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </nav>
         </div>
 
-        <div class="row mb-4 officer-list-row">
+        <div class="row mb-4 pt-2 officer-list-row">
             <div class="allProgrammes">
 
                 <% programmes.forEach( (programme)=> { %>
@@ -44,7 +62,18 @@
                     <div class="item p-3 border mb-2 bg-white bg-opacity-70">
                         <a href="/admin/programmeinfo/<%= programme.id %>">
                             <div class="fw-bold">
-                                <%= programme.programme_name%>
+                                <%= programme.award_type %>
+                                    <%= programme.programme_name %> (<%= programme.pathway %>) - <%=
+                                                programme.academic_year%>
+                                                <div class="text-muted small">
+                                                    Assigned Officer:
+                                                    <% if (programme.first_name) { %>
+                                                        <%= programme.first_name %>
+                                                            <%= programme.last_name %>
+                                                                <% } else { %>
+                                                                    None Assigned
+                                                                    <% } %>
+                                                </div>
                             </div>
                         </a>
                     </div>

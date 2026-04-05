@@ -32,9 +32,35 @@
                     <form action="/admin/addprogramme" method="POST">
 
                         <div class="mb-4">
-                            <label for="programme_name" class="form-label">Programme title</label>
+                            <label for="programme_name" class="form-label">Programme Title</label>
                             <input type="text" name="programme_name" class="form-control" id="programme_name"
-                                placeholder="e.g.BSc Computer Science" required>
+                                placeholder="e.g.Computer Science" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="award_type" class="form-label">Award Type</label>
+                            <select class="form-select" name="award_type" aria-label="Default select example">
+                                <option selected>Open this select menu</option>
+                                <option value="BA">BA</option>
+                                <option value="BSc">BSc</option>
+                                <option value="BEng">BEng</option>
+                                <option value="LLB">LLB</option>
+                                <option value="BEd">BEd</option>
+                                <option value="BArch">BArch</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="pathway" class="form-label">Pathway</label>
+                            <input type="text" name="pathway" class="form-control" id="pathway"
+                                placeholder="e.g. Single Honours, with Placement, with (Language)" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="academic_year" class="form-label">Academic Year</label>
+                            <select class="form-select" name="academic_year" aria-label="Default select example">
+                                <option selected>Open this select menu</option>
+                                <option value="2025/2026">2025/2026</option>
+                                <option value="2024/2025">2024/2025</option>
+                                <option value="2023/2024">2023/2024</option>
+                            </select>
                         </div>
                         <div class="row">
                             <h6>Yearly weightings (Decimals)</h6>
@@ -115,8 +141,23 @@
                                     value="<%= defaults.dissertation_min_pass %>">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                </div>
+                        <div class="mb-4">
+                        <h6>Assign Officer</h6>
+                        <select name="user_id" class="form-select">
+                            <option value="">-- No Officer Assigned --</option>
+                            <% officers.forEach(item=> { %>
+                                <option value="<%= item.id %>">
+                                    <%= item.first_name %>
+                                        <%= item.last_name %>
+                                </option>
+                                <% }) %>
+                        </select>
+                        </div>
+                
+
+                <button type="submit" class="btn btn-primary">Save</button>
+                
+
                 </form>
             </div>
         </div>
@@ -124,7 +165,9 @@
 
 
     </div>
+
     </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

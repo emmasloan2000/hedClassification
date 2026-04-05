@@ -50,7 +50,7 @@
                        <% unassignedProgrammes.forEach(item => { %>
                             <div>
                                 <input name="programme_ids" type="checkbox" value="<%= item.id %>">
-                                <label> <%= item.programme_name %></label>
+                                <label> <%= item.award_type %> <%= item.programme_name %> <%= item.pathway %> - <%= item.academic_year %></label>
                             </div>
                         <% }) %>
                     </div>

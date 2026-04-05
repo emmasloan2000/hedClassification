@@ -28,6 +28,9 @@ CREATE TABLE roles (
 CREATE TABLE programmes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     programme_name VARCHAR(255) NOT NULL,
+    award_type VARCHAR(10) NOT NULL,
+    pathway VARCHAR(100) NOT NULL,
+    academic_year VARCHAR(9) NOT NULL,
     y1_weight DECIMAL (3,2) DEFAULT 0.00,
     y2_weight DECIMAL (3,2) DEFAULT 0.30,
     y3_weight DECIMAL (3,2) DEFAULT 0.70,
@@ -74,6 +77,7 @@ CREATE TABLE modules (
 CREATE TABLE user_programmes (
     user_id INT,
     programme_id INT,
+    academic_year VARCHAR(9),
     PRIMARY KEY (user_id, programme_id),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (programme_id) REFERENCES programmes(id)
@@ -100,19 +104,21 @@ const seedData = async () => {
     INSERT INTO roles (role_name) VALUES ('Registry Officer'), ('Classification Officer');
 
  
-    INSERT INTO programmes (programme_name, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass) 
+    INSERT INTO programmes (programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass) 
     VALUES 
     
-    ('BSc Computer Science', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 20, 40, 40),
+    ('Computer Science', 'BSc', 'Single Honours', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 20, 30, 40),
 
    
-    ('BA Fine Art', 0.00, 0.50, 0.50, 70, 60, 50, 40, FALSE, 0, 40, 30),
+    ('Fine Art', 'BA', 'Single Honours', '2025/2026', 0.00, 0.50, 0.50, 70, 60, 50, 40, FALSE, 0, 40, 30),
 
     
-    ('BSc Mathematics', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
-    ('BA French', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
-    ('BA History', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
-    ('BSc Psychology', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40);
+    ('Mathematics', 'BSc', 'Single Honours', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
+    ('Mathematics', 'BSc', 'with Placement Year','2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
+    ('French', 'BA', 'Single Honours', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
+    ('French', 'BA', 'with Spanish', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
+    ('History', 'BA', 'Single Honours', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
+    ('Psychology', 'BSc', 'Single Honours', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40);
     
 
 
@@ -284,7 +290,7 @@ const seedData = async () => {
 
         }
 
-        await db.query(`INSERT INTO user_programmes (user_id, programme_id) VALUES (2, 1)`)
+        await db.query(`INSERT INTO user_programmes (user_id, programme_id, academic_year) VALUES (2, 1, '2025/2026')`)
         
                 process.exit(0);
             

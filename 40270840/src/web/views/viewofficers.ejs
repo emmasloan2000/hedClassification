@@ -22,15 +22,30 @@
 
     <div class="container-officer-info">
 
-    <div class="row heading-container">
+    <div class="row heading-container pb-1">
+        <div class="row p-1 text-center">
         <h1>All Classification Officers</h1>
         <h2>Click to edit officer details</h2>
-        <nav class="heading">
+        </div>
+        <nav class="heading p-1">
+             <div class="row">
+                    <div class="col-md-6">
             <div class="container-fluid">
                 <form action="/admin/viewofficers" method="GET" class="d-flex" role="search">
                     <input name="search" class="form-control" type="search" placeholder="Search by name or programme" aria-label="Search" />
                     <button class="btn btn-outline-secondary bg-secondary text-white" type="submit">Search</button>
                 </form>
+                   <form action="/admin/viewofficers" method="GET" class="d-flex">
+                                <input type="hidden" name="search" value="<%= currentSearch %>">
+                                <select class="form-select" name="filter">
+                                    <option value="All" <%= (!currentFilter ||currentFilter === 'All') ? 'selected' : '' %>>All</option>
+                                    <option value="With Assignments" <%= currentFilter === 'With Assignments' ? 'selected' : '' %>>With Assignments</option>
+                                    <option value="Without Assignments" <%= currentFilter === 'Without Assignments' ? 'selected' : '' %>>Without Assignments</option>
+                                </select>
+                                <button type="submit" class="btn btn-secondary">Filter</button>
+                            </form>
+                            </div>
+                            </div>
             </div>
         </nav>
     </div>

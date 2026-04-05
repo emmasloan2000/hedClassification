@@ -61,7 +61,7 @@
                                         <div class="form-check">
                                             <input name="programme_ids" type="checkbox" value="<%= item.id %>" checked>
                                             <label>
-                                                <%= item.programme_name %>
+                                                <%= item.award_type %> <%= item.programme_name %> (<%= item.pathway %>) - <%=  item.academic_year%>
                                             </label>
                                         </div>
                                         <% }) %>
@@ -77,7 +77,7 @@
                                     <div class="form-check">
                                         <input name="programme_ids" type="checkbox" value="<%= item.id %>">
                                         <label>
-                                            <%= item.programme_name %>
+                                            <%= item.award_type %> <%= item.programme_name %> (<%= item.pathway %>) - <%=  item.academic_year%>
                                         </label>
                                     </div>
                                     <% }) %>

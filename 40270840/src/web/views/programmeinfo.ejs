@@ -29,12 +29,41 @@
                     <h4>Edit Degree programme</h4>
 
 
-                    <form action="/admin/programmeinfo/<%= programme.id %>" method="POST">
+                    <form action="/admin/programmeinfo/<%= programme.programme_id %>" method="POST">
 
                         <div class="mb-4">
                             <label for="programme_name" class="form-label">Programme title</label>
                             <input type="text" name="programme_name" class="form-control" id="programme_name"
                                 value="<%= programme.programme_name %>">
+                        </div>
+                        <div class="mb-4">
+                            <label for="award_type" class="form-label">Award Type</label>
+                            <select class="form-select" name="award_type" aria-label="Default select example">
+                                <option value="BA" <%=programme.award_type==='BA' ? 'selected' : '' %>>BA</option>
+                                <option value="BSc" <%=programme.award_type==='BSc' ? 'selected' : '' %>>BSc</option>
+                                <option value="BEng" <%=programme.award_type==='BEng' ? 'selected' : '' %>>BEng</option>
+                                <option value="LLB" <%=programme.award_type==='LLB' ? 'selected' : '' %>>LLB</option>
+                                <option value="BEd" <%=programme.award_type==='BEd' ? 'selected' : '' %>>BEd</option>
+                                <option value="BArch" <%=programme.award_type==='BArch' ? 'selected' : '' %>>BArch
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="pathway" class="form-label">Pathway</label>
+                            <input type="text" name="pathway" class="form-control" id="pathway"
+                                value="<%= programme.pathway %>">
+                        </div>
+                        <div class="mb-4">
+                            <label for="academic_year" class="form-label">Academic Year</label>
+                            <select class="form-select" name="academic_year" aria-label="Default select example">
+                                <option selected>Open this select menu</option>
+                                <option value="2025/2026" <%=programme.academic_year==='2025/2026' ? 'selected' : '' %>
+                                    >2025/2026</option>
+                                <option value="2024/2025" <%=programme.academic_year==='2024/2025' ? 'selected' : '' %>
+                                    >2024/2025</option>
+                                <option value="2023/2024" <%=programme.academic_year==='2023/2024' ? 'selected' : '' %>
+                                    >2023/2024</option>
+                            </select>
                         </div>
                         <div class="row">
                             <h6>Yearly weightings (Decimals)</h6>
@@ -87,7 +116,7 @@
                             <div class="col-md-6">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="resit_capped"
-                                        id="resit_capped" <%= programme.resit_capped ? 'checked' : '' %>>
+                                        id="resit_capped" <%=programme.resit_capped ? 'checked' : '' %>>
                                     <label class="form-check-label" for="resit_capped">Resits Capped at 40%</label>
                                 </div>
                             </div>
@@ -95,10 +124,14 @@
                                 <label for="max_failed_credits" class="form-label small fw-bold">Max Failed Credits
                                     Allowed</label>
                                 <select name="max_failed_credits_allowed" id="max_failed_credits" class="form-select">
-                                    <option value="0"<%= programme.max_failed_credits_allowed == 0 ? 'selected' : '' %>>0 Credits</option>
-                                    <option value="20"<%= programme.max_failed_credits_allowed == 20 ? 'selected' : '' %>>20 Credits (1 Module)</option>
-                                    <option value="40"<%= programme.max_failed_credits_allowed == 40 ? 'selected' : '' %>>40 Credits</option>
-                                    <option value="60"<%= programme.max_failed_credits_allowed == 60 ? 'selected' : '' %>>60 Credits</option>
+                                    <option value="0" <%=programme.max_failed_credits_allowed==0 ? 'selected' : '' %>>0
+                                        Credits</option>
+                                    <option value="20" <%=programme.max_failed_credits_allowed==20 ? 'selected' : '' %>
+                                        >20 Credits (1 Module)</option>
+                                    <option value="40" <%=programme.max_failed_credits_allowed==40 ? 'selected' : '' %>
+                                        >40 Credits</option>
+                                    <option value="60" <%=programme.max_failed_credits_allowed==60 ? 'selected' : '' %>
+                                        >60 Credits</option>
                                 </select>
                             </div>
                         </div>
@@ -114,10 +147,22 @@
                                 <input type="number" name="dissertation_min_pass" min="0" max="100" class="form-control"
                                     value="<%= programme.dissertation_min_pass %>">
                             </div>
+                            <h6>Assigned Officer</h6>
+                            <select name="user_id" class="form-select">
+                                <option value="">-- No Officer Assigned --</option>
+                                <% officers.forEach(item=> { %>
+                                    <option value="<%= item.id %>" <%=(programme.first_name + ' ' +
+                                        programme.last_name===item.first_name + ' ' + item.last_name) ? 'selected' : ''
+                                        %>>
+                                        <%= item.first_name %>
+                                            <%= item.last_name %>
+                                    </option>
+                                    <% }) %>
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Save</button>
-                
-                </form>
+
+                    </form>
                 </div>
             </div>
         </div>
