@@ -3,10 +3,10 @@ import bcrypt from 'bcrypt';
 
 //allows for extensibility, rather tat hashing each password one by one
 const usersToSeed = [
-    {first_name: 'Ellie', last_name: 'Smith', username: 'registry_admin', password: 'QUB2026', role_id: 1},
-    {first_name: 'John', last_name: 'Rooney', username: 'class_officer1', password: 'Queens2026', role_id: 2},
-    {first_name: 'Elena', last_name: 'Gilbert', username: 'class_officer2', password: 'password', role_id: 2},
-    {first_name: 'Meredith', last_name: 'Gray', username: 'class_officer3', password: 'officer3', role_id: 2},
+    { first_name: 'Ellie', last_name: 'Smith', username: 'registry_admin', password: 'QUB2026', role_id: 1 },
+    { first_name: 'John', last_name: 'Rooney', username: 'class_officer1', password: 'Queens2026', role_id: 2 },
+    { first_name: 'Elena', last_name: 'Gilbert', username: 'class_officer2', password: 'password', role_id: 2 },
+    { first_name: 'Meredith', last_name: 'Gray', username: 'class_officer3', password: 'officer3', role_id: 2 },
 ];
 
 const schemaSQL = `
@@ -62,6 +62,12 @@ CREATE TABLE students (
     last_name VARCHAR(100) NOT NULL, 
     current_level INT NOT NULL, 
     programme_id INT,
+    mitigating_circumstances BOOLEAN,
+    cohort_year VARCHAR(9),
+    proposed_classification VARCHAR(50),
+    final_classification VARCHAR(50),
+    is_manual_override BOOLEAN,
+    rationale VARCHAR(1000),
     FOREIGN KEY (programme_id) REFERENCES programmes(id)
 );
 
@@ -96,10 +102,10 @@ CREATE TABLE grades (
 
 const seedData = async () => {
 
-    try{
+    try {
         console.log("starting seeding...");
 
-    const dataSQL = `
+        const dataSQL = `
     
     INSERT INTO roles (role_name) VALUES ('Registry Officer'), ('Classification Officer');
 
@@ -118,7 +124,9 @@ const seedData = async () => {
     ('French', 'BA', 'Single Honours', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
     ('French', 'BA', 'with Spanish', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
     ('History', 'BA', 'Single Honours', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
-    ('Psychology', 'BSc', 'Single Honours', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40);
+    ('Psychology', 'BSc', 'Single Honours', '2025/2026', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40),
+    ('Computer Science', 'BSc', 'Single Honours', '2026/2027', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 20, 30, 40),
+    ('Mathematics', 'BSc', 'Single Honours', '2026/2027', 0.00, 0.30, 0.70, 70, 60, 50, 40, TRUE, 0, 40, 40);
     
 
 
@@ -171,43 +179,121 @@ const seedData = async () => {
     ('Advanced Studio Research', 20, 3, 2), 
     ('Art & The Public Sphere', 20, 3, 2);
 
-    
-    INSERT INTO students (student_number, first_name, last_name, current_level, programme_id) VALUES 
-    ('40175341', 'Laura', 'Smith', 3, 1);
+    -- Modules for Mathematics (programme_id: 3)
 
-    -- Year 1 
+    -- Year 1 (Level 1): Total 120 Credits
+INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
+('Calculus I', 20, 1, 3),
+('Linear Algebra I', 20, 1, 3),
+('Probability and Statistics', 20, 1, 3),
+('Discrete Mathematics', 20, 1, 3),
+('Mathematical Proofs and Logic', 20, 1, 3),
+('Computational Mathematics', 20, 1, 3);
+
+-- Year 2 (Level 2): Total 120 Credits
+INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
+('Multivariable Calculus', 20, 2, 3),
+('Abstract Algebra', 20, 2, 3),
+('Real Analysis', 20, 2, 3),
+('Differential Equations', 20, 2, 3),
+('Numerical Methods', 20, 2, 3),
+('Vector Analysis', 20, 2, 3);
+
+-- Year 3 (Level 3): Total 120 Credits
+INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
+('Complex Analysis', 20, 3, 3),
+('Number Theory', 20, 3, 3),
+('Topology', 20, 3, 3),
+('Fluid Mechanics', 20, 3, 3),
+('Stochastic Processes', 20, 3, 3),
+('Mathematics Dissertation', 20, 3, 3);
+
+
+INSERT INTO students (
+    student_number, 
+    first_name, 
+    last_name, 
+    current_level, 
+    programme_id, 
+    mitigating_circumstances,
+    cohort_year,
+    proposed_classification,
+    final_classification,
+    is_manual_override,
+    rationale
+) VALUES 
+('40175341', 'Laura', 'Smith', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175342', 'James', 'Brown', 3, 1, 1, '2025/2026', NULL, NULL, 0, NULL),
+('40175343', 'Emily', 'Davis', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175344', 'Michael', 'Wilson', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175345', 'Sarah', 'Miller', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175346', 'David', 'Moore', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175347', 'Jessica', 'Taylor', 3, 1, 1, '2025/2026', NULL, NULL, 0, NULL),
+('40175348', 'Daniel', 'Anderson', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175349', 'Sophie', 'Thomas', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175350', 'Ryan', 'Jackson', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175351', 'Chloe', 'White', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175352', 'Liam', 'Vance', 3, 2, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175353', 'Chloe', 'Bennet', 3, 2, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40175354', 'Marcus', 'Reed', 3, 2, 0, '2025/2026', NULL, NULL, 0, NULL);
+
+INSERT INTO students (
+    student_number, 
+    first_name, 
+    last_name, 
+    current_level, 
+    programme_id, 
+    mitigating_circumstances,
+    cohort_year,
+    proposed_classification,
+    final_classification,
+    is_manual_override,
+    rationale
+) VALUES 
+('40200101', 'Alice', 'Wonder', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40200102', 'Bob', 'Builder', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL),
+('40200103', 'Charlie', 'Alpha', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40200104', 'Daisy', 'Miller', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40200105', 'Edward', 'Norton', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL),
+('40200106', 'Fiona', 'Gallagher', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL),
+('40200107', 'George', 'Hargreeves', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL);
+
+INSERT INTO students (
+    student_number, 
+    first_name, 
+    last_name, 
+    current_level, 
+    programme_id, 
+    mitigating_circumstances,
+    cohort_year,
+    proposed_classification,
+    final_classification,
+    is_manual_override,
+    rationale
+) VALUES 
+-- Programme 3 (Mathematics) - Level 2
+('40200201', 'Oliver', 'Atom', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL),
+('40200202', 'Bella', 'Swan', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL),
+('40200203', 'Kevin', 'Flynn', 2, 10, 1, '2026/2027', NULL, NULL, 0, NULL),
+('40200204', 'Diana', 'Prince', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL),
+
+-- Programme 1 (Computer Science) - Level 2
+('40100201', 'Elliot', 'Alderson', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL),
+('40100202', 'Angela', 'Moss', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL),
+('40100203', 'Tyrell', 'Wellick', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL);
+
+     -- Year 1 
     INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
-    (1, 1, 60, 0), (1, 2, 60, 0), (1, 3, 60, 0), (1, 4, 60, 0), (1, 5, 60, 0), (1, 6, 60, 0);
+    (1, 1, 60, 0), (1, 2, 60, 0), (1, 3, 60, 0), (1, 4, 60, 0), (1, 5, 60, 0), (1, 6, 60, 0),
     
     -- Year 2
-    INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
-    (1, 7, 70, 0), (1, 8, 70, 0), (1, 9, 70, 0), (1, 10, 70, 0), (1, 11, 70, 0), (1, 12, 70, 0);
+    
+    (1, 7, 70, 0), (1, 8, 70, 0), (1, 9, 70, 0), (1, 10, 70, 0), (1, 11, 70, 0), (1, 12, 70, 0),
     
     -- Year 3 
-    INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
-    (1, 13, 80, 0), (1, 14, 80, 0), (1, 15, 80, 0), (1, 16, 80, 0), (1, 17, 80, 0);
-
     
-    -- Insert students
-    INSERT INTO students (student_number, first_name, last_name, current_level, programme_id) VALUES 
-    ('40175342', 'James', 'Brown', 3, 1),
-    ('40175343', 'Emily', 'Davis', 3, 1),
-    ('40175344', 'Michael', 'Wilson', 3, 1),
-    ('40175345', 'Sarah', 'Miller', 3, 1),
-    ('40175346', 'David', 'Moore', 3, 1),
-    ('40175347', 'Jessica', 'Taylor', 3, 1),
-    ('40175348', 'Daniel', 'Anderson', 3, 1),
-    ('40175349', 'Sophie', 'Thomas', 3, 1),
-    ('40175350', 'Ryan', 'Jackson', 3, 1),
-    ('40175351', 'Chloe', 'White', 3, 1),
-    ('40175352', 'Liam', 'Vance', 3, 2),
-    ('40175353', 'Chloe', 'Bennet', 3, 2),
-    ('40175354', 'Marcus', 'Reed', 3, 2);
+    (1, 13, 80, 0), (1, 14, 80, 0), (1, 15, 80, 0), (1, 16, 80, 0), (1, 17, 80, 0),
 
-   
-
-    
-    INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
     -- Student 2: James Brown 
     (2, 1, 75, 0), (2, 2, 72, 0), (2, 3, 80, 0), (2, 4, 78, 0), (2, 5, 74, 0), (2, 6, 76, 0),
     (2, 7, 82, 0), (2, 8, 85, 0), (2, 9, 79, 0), (2, 10, 81, 0), (2, 11, 77, 0), (2, 12, 80, 0),
@@ -275,26 +361,93 @@ const seedData = async () => {
     (14, 24, 65, 0), (14, 25, 67, 0), (14, 26, 64, 0), (14, 27, 68, 0), (14, 28, 62, 0), (14, 29, 65, 0),
     (14, 30, 68, 0), 
     (14, 31, 65, 0), (14, 32, 66, 0), (14, 33, 67, 0), (14, 34, 64, 0);
+
+    -- Assuming Mathematics modules (Programme 3) have IDs 13-30 
+-- (6 modules for Year 1, 6 for Year 2, 6 for Year 3)
+-- Assuming Mathematics students have IDs 15-21
+
+-- ALICE (Student 15) - High Marks (First Class)
+INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
+(15, 13, 75, 0), (15, 14, 78, 0), (15, 15, 80, 0), (15, 16, 72, 0), (15, 17, 70, 0), (15, 18, 74, 0), -- Y1
+(15, 19, 82, 0), (15, 20, 85, 0), (15, 21, 78, 0), (15, 22, 80, 0), (15, 23, 77, 0), (15, 24, 79, 0), -- Y2 (30%)
+(15, 25, 88, 0), (15, 26, 84, 0), (15, 27, 82, 0), (15, 28, 85, 0), (15, 29, 90, 0), (15, 30, 88, 0); -- Y3 (70%)
+
+-- BOB (Student 16) - Has a Resit (Capped at 40)
+INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
+(16, 13, 50, 0), (16, 14, 55, 0), (16, 15, 45, 0), (16, 16, 48, 0), (16, 17, 52, 0), (16, 18, 50, 0), -- Y1
+(16, 19, 40, 1), (16, 20, 55, 0), (16, 21, 58, 0), (16, 22, 50, 0), (16, 23, 45, 0), (16, 24, 48, 0), -- Y2
+(16, 25, 52, 0), (16, 26, 50, 0), (16, 27, 55, 0), (16, 28, 58, 0), (16, 29, 60, 0), (16, 30, 55, 0); -- Y3
+
+-- CHARLIE (Student 17) - 2:1 Level
+INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
+(17, 13, 62, 0), (17, 14, 60, 0), (17, 15, 65, 0), (17, 16, 61, 0), (17, 17, 60, 0), (17, 18, 63, 0), -- Y1
+(17, 19, 65, 0), (17, 20, 68, 0), (17, 21, 62, 0), (17, 22, 64, 0), (17, 23, 66, 0), (17, 24, 67, 0), -- Y2
+(17, 25, 68, 0), (17, 26, 70, 0), (17, 27, 65, 0), (17, 28, 62, 0), (17, 29, 64, 0), (17, 30, 66, 0); -- Y3
+
+-- EDWARD (Student 19) - Borderline First/2:1 (To test Flagging)
+INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
+(19, 13, 60, 0), (19, 14, 60, 0), (19, 15, 60, 0), (19, 16, 60, 0), (19, 17, 60, 0), (19, 18, 60, 0), -- Y1
+(19, 19, 68, 0), (19, 20, 69, 0), (19, 21, 68, 0), (19, 22, 69, 0), (19, 23, 68, 0), (19, 24, 69, 0), -- Y2
+(19, 25, 69, 0), (19, 26, 70, 0), (19, 27, 70, 0), (19, 28, 69, 0), (19, 29, 70, 0), (19, 30, 69, 0); -- Y3
+
+-- Fillers for Students 18 (Daisy), 20 (Fiona), 21 (George)
+INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
+-- Daisy (Student 18)
+(18, 19, 55, 0), (18, 20, 55, 0), (18, 21, 55, 0), (18, 22, 55, 0), (18, 23, 55, 0), (18, 24, 55, 0), 
+(18, 25, 58, 0), (18, 26, 58, 0), (18, 27, 58, 0), (18, 28, 58, 0), (18, 29, 58, 0), (18, 30, 58, 0),
+-- Fiona (Student 20)
+(20, 19, 45, 0), (20, 20, 45, 0), (20, 21, 45, 0), (20, 22, 45, 0), (20, 23, 45, 0), (20, 24, 45, 0), 
+(20, 25, 48, 0), (20, 26, 48, 0), (20, 27, 48, 0), (20, 28, 48, 0), (20, 29, 48, 0), (20, 30, 48, 0),
+-- George (Student 21)
+(21, 19, 72, 0), (21, 20, 72, 0), (21, 21, 72, 0), (21, 22, 72, 0), (21, 23, 72, 0), (21, 24, 72, 0), 
+(21, 25, 75, 0), (21, 26, 75, 0), (21, 27, 75, 0), (21, 28, 75, 0), (21, 29, 75, 0), (21, 30, 75, 0);
+
+-- Year 1  - Completed for all
+INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
+(22, 13, 65, 0), (22, 14, 60, 0), (22, 15, 70, 0), (22, 16, 55, 0), (22, 17, 62, 0), (22, 18, 60, 0), -- Oliver
+(23, 13, 72, 0), (23, 14, 75, 0), (23, 15, 80, 0), (23, 16, 70, 0), (23, 17, 78, 0), (23, 18, 74, 0), -- Bella
+(24, 13, 40, 1), (24, 14, 45, 0), (24, 15, 50, 0), (24, 16, 42, 0), (24, 17, 48, 0), (24, 18, 45, 0), -- Kevin (Resit)
+(25, 13, 68, 0), (25, 14, 70, 0), (25, 15, 65, 0), (25, 16, 62, 0), (25, 17, 66, 0), (25, 18, 64, 0); -- Diana
+
+-- Year 2  - Mid-year results (3 modules each)
+INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
+(22, 19, 64, 0), (22, 20, 61, 0), (22, 21, 58, 0),
+(23, 21, 82, 0), (23, 22, 85, 0), (23, 23, 79, 0),
+(24, 19, 35, 0), (24, 20, 42, 0), (24, 21, 40, 0), 
+(25, 19, 70, 0), (25, 20, 72, 0), (25, 21, 68, 0);
+
+-- Year 1  - Completed
+INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
+(26, 1, 90, 0), (26, 2, 95, 0), (26, 3, 88, 0), (26, 4, 92, 0), (26, 5, 85, 0), (26, 6, 88, 0), -- Elliot
+(27, 1, 70, 0), (27, 2, 72, 0), (27, 3, 68, 0), (27, 4, 75, 0), (27, 5, 70, 0), (27, 6, 72, 0), -- Angela
+(28, 1, 60, 0), (28, 2, 62, 0), (28, 3, 58, 0), (28, 4, 65, 0), (28, 5, 60, 0), (28, 6, 62, 0); -- Tyrell
+
+-- Year 2  - Mid-year results
+INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 
+(26, 7, 95, 0), (26, 8, 98, 0),
+(27, 7, 75, 0), (27, 8, 78, 0),
+(28, 7, 55, 0), (28, 8, 58, 0);
         `;
 
         await db.query(schemaSQL);
         console.log("Tables reset and created");
 
-            await db.query(dataSQL)
-                console.log("All data seeded successfully");
+        await db.query(dataSQL)
+        console.log("All data seeded successfully");
 
-        for (let user of usersToSeed){
+        for (let user of usersToSeed) {
             const hashedPass = await bcrypt.hash(user.password, 10);
             const userSQL = `INSERT INTO users (first_name, last_name, username, password, role_id) VALUES (?, ?, ?, ?, ?)`;
             await db.query(userSQL, [user.first_name, user.last_name, user.username, hashedPass, user.role_id]);
 
         }
 
-        await db.query(`INSERT INTO user_programmes (user_id, programme_id, academic_year) VALUES (2, 1, '2025/2026')`)
-        
-                process.exit(0);
-            
-    
+        await db.query(`INSERT INTO user_programmes (user_id, programme_id, academic_year) VALUES (2, 1, '2025/2026'),
+            (2, 3, '2025/2026'), (2, 2, '2025/2026'), (3, 4, '2025/2026'), (4, 5, '2025/2026');`)
+
+        process.exit(0);
+
+
 
     } catch (error) {
         console.log("seeding failed", error);

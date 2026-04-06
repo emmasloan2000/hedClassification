@@ -33,13 +33,13 @@ app.use(session({
 //global route protection
 app.use((req, res, next) => {
   console.log(`Checking Access for: ${req.path}`);
-  if (req.path === "/" || req.path === "/login"){
+  if (req.path === "/" || req.path === "/login") {
     return next();
   }
 
   if (req.path.includes('.')) return next();
 
-  if (req.session.user){
+  if (req.session.user) {
     console.log(`User ${req.session.user.username} is authorized for ${req.path}`);
     return next();
   }
@@ -49,7 +49,7 @@ app.use((req, res, next) => {
 
 const isAdmin = (req, res, next) => {
   console.log(req.session);
-  if (req.session.user && req.session.user.role_id === 1){
+  if (req.session.user && req.session.user.role_id === 1) {
     next();
   } else {
     res.redirect("/");
@@ -57,9 +57,11 @@ const isAdmin = (req, res, next) => {
 };
 
 const isOfficer = (req, res, next) => {
-  if (req.session.user && req.session.user.role_id === 2){
+  
+  if (req.session.user && req.session.user.role_id === 2) {
     next();
   } else {
+    
     res.redirect("/");
   }
 };
@@ -96,12 +98,12 @@ app.post("/login", async (req, res) => {
       req.session.user = { id: user.id, username: user.username, role_id: user.role_id }
       req.session.save((err) => {
 
-         if (userRole === 1) {
-        console.log("redirecting to admin")
-        res.redirect("/admin");
-      } else {
-        res.redirect("/officer");
-      }
+        if (userRole === 1) {
+          console.log("redirecting to admin")
+          res.redirect("/admin");
+        } else {
+          res.redirect("/officer");
+        }
       });
 
     } else {
@@ -118,12 +120,12 @@ app.post("/login", async (req, res) => {
 
 //sql statement
 async function getUnassignedProgrammes() {
-   const unassignedProgrammesSQL = `SELECT programmes.* FROM programmes
+  const unassignedProgrammesSQL = `SELECT programmes.* FROM programmes
                                   LEFT JOIN user_programmes ON programmes.id = user_programmes.programme_id
                                   WHERE user_programmes.programme_id IS NULL`;
 
-    const [unassignedProgrammes] = await db.query(unassignedProgrammesSQL);
-    return unassignedProgrammes;
+  const [unassignedProgrammes] = await db.query(unassignedProgrammesSQL);
+  return unassignedProgrammes;
 }
 
 
@@ -146,26 +148,17 @@ app.get("/admin", isAdmin, async (req, res) => {
 
     const unassignedCounter = unassigned.length;
 
-    
+
     res.render("admin.ejs", { counter, pCounter, unassignedCounter });
 
-    
+
   } catch (error) {
     console.error("Database error", error);
     res.status(500).send("error");
-    
+
   }
 
 
-});
-
-
-app.get("/officer", isOfficer, (req, res) => {
-
-  
-    res.render("officer.ejs");
- 
-  
 });
 
 
@@ -173,10 +166,10 @@ app.get("/admin/addofficer", isAdmin, async (req, res) => {
 
   try {
 
-  const unassignedProgrammes = await getUnassignedProgrammes();
+    const unassignedProgrammes = await getUnassignedProgrammes();
 
-  res.render("addofficer.ejs", {unassignedProgrammes});
-    
+    res.render("addofficer.ejs", { unassignedProgrammes });
+
   } catch (error) {
     console.error("Database error", error);
     res.status(500).send("error");
@@ -186,33 +179,33 @@ app.get("/admin/addofficer", isAdmin, async (req, res) => {
 
 
 
-app.post("/admin/addofficer", isAdmin, async (req,res) => {
+app.post("/admin/addofficer", isAdmin, async (req, res) => {
   const { first_name, last_name, username, password, programme_ids } = req.body;
 
   try {
-    
-  const hashedPass = await bcrypt.hash(password, 10);
 
-  const addOfficerSQL = `INSERT INTO users (first_name, last_name, username, password, role_id) VALUES (?, ?, ?, ?, 2)`;
-  const params = [first_name, last_name, username, hashedPass];
+    const hashedPass = await bcrypt.hash(password, 10);
 
-  const [result] = await db.query(addOfficerSQL, params); 
-  const insertId = result.insertId;
+    const addOfficerSQL = `INSERT INTO users (first_name, last_name, username, password, role_id) VALUES (?, ?, ?, ?, 2)`;
+    const params = [first_name, last_name, username, hashedPass];
 
-  if (programme_ids){
-    const idArray = Array.isArray(programme_ids) ? programme_ids : [programme_ids];
+    const [result] = await db.query(addOfficerSQL, params);
+    const insertId = result.insertId;
 
-    for (let p_id of idArray){
-    let insertProgrammeSQL = `INSERT INTO user_programmes (user_id, programme_id, academic_year) SELECT ?, id, academic_year
+    if (programme_ids) {
+      const idArray = Array.isArray(programme_ids) ? programme_ids : [programme_ids];
+
+      for (let p_id of idArray) {
+        let insertProgrammeSQL = `INSERT INTO user_programmes (user_id, programme_id, academic_year) SELECT ?, id, academic_year
     FROM programmes WHERE id = ?`;
-    await db.query(insertProgrammeSQL, [insertId, p_id]);
-  }
+        await db.query(insertProgrammeSQL, [insertId, p_id]);
+      }
 
-  }
+    }
 
-  res.redirect("/admin");
+    res.redirect("/admin");
 
-   } catch (error) {
+  } catch (error) {
     console.error("Error adding officer");
     res.status(500).send("Database error");
   }
@@ -221,70 +214,70 @@ app.post("/admin/addofficer", isAdmin, async (req,res) => {
 
 
 
-app.get("/admin/addprogramme", isAdmin,  async (req, res) => {
+app.get("/admin/addprogramme", isAdmin, async (req, res) => {
 
   const allClassOfficers = `SELECT id, users.first_name, users.last_name, users.username FROM users WHERE users.role_id = 2`;
   const [officers] = await db.query(allClassOfficers);
 
 
   const baseRules = {
-        y1_weight: 0.00,             
-        y2_weight: 0.30,            
-        y3_weight: 0.70,             
-        min_1st: 70,                 
-        min_2_1: 60,                 
-        min_2_2: 50,                 
-        min_3rd: 40,                 
-        resit_capped: true,  
-        max_failed_credits_allowed: 0,        
-        min_compensation_mark: 40,   
-        dissertation_min_pass: 40    
-    };
+    y1_weight: 0.00,
+    y2_weight: 0.30,
+    y3_weight: 0.70,
+    min_1st: 70,
+    min_2_1: 60,
+    min_2_2: 50,
+    min_3rd: 40,
+    resit_capped: true,
+    max_failed_credits_allowed: 0,
+    min_compensation_mark: 40,
+    dissertation_min_pass: 40
+  };
 
   res.render("addprogramme.ejs", { defaults: baseRules, officers });
 });
 
 
 
-app.post("/admin/addprogramme", isAdmin, async (req,res) => {
+app.post("/admin/addprogramme", isAdmin, async (req, res) => {
 
   console.log("Form data recieved: ", req.body);
 
   try {
 
-  const { programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight,
-    min_1st, min_2_1, min_2_2, min_3rd, max_failed_credits_allowed, 
-    min_compensation_mark, dissertation_min_pass, user_id
-   } = req.body;
+    const { programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight,
+      min_1st, min_2_1, min_2_2, min_3rd, max_failed_credits_allowed,
+      min_compensation_mark, dissertation_min_pass, user_id
+    } = req.body;
 
-   //Handles weight values that don't total 1. Math.abs bc potential rounding issues.
-   const totalWeight = parseFloat(y1_weight)+parseFloat(y2_weight)+ parseFloat(y3_weight);
-   const difference = totalWeight - 1.0;
-   if (Math.abs(difference) > 0.001){
-    return res.status(400).send("Error. Yearly weighting must sum to 1.0")
-   }
+    //Handles weight values that don't total 1. Math.abs bc potential rounding issues.
+    const totalWeight = parseFloat(y1_weight) + parseFloat(y2_weight) + parseFloat(y3_weight);
+    const difference = totalWeight - 1.0;
+    if (Math.abs(difference) > 0.001) {
+      return res.status(400).send("Error. Yearly weighting must sum to 1.0")
+    }
 
-   const resit_capped = req.body.resit_capped ? 1:0;
+    const resit_capped = req.body.resit_capped ? 1 : 0;
 
-  const addProgrammeSQL = `INSERT INTO programmes (programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass) 
+    const addProgrammeSQL = `INSERT INTO programmes (programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  const params = [programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight,
-    min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed, 
-    min_compensation_mark, dissertation_min_pass];
+    const params = [programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight,
+      min_1st, min_2_1, min_2_2, min_3rd, resit_capped, max_failed_credits_allowed,
+      min_compensation_mark, dissertation_min_pass];
 
-  const [result] = await db.query(addProgrammeSQL, params); 
-  const newProgrammeId = result.insertId;
+    const [result] = await db.query(addProgrammeSQL, params);
+    const newProgrammeId = result.insertId;
 
-  if (user_id) {
-    console.log("Assigning officer ${user_id} to Programme ${newProgrammeId}");
-    await db.query(
-      `INSERT INTO user_programmes (user_id, programme_id, academic_year) VALUES (?, ?, ?)`, [user_id, newProgrammeId, academic_year]);
-  }
+    if (user_id) {
+      console.log("Assigning officer ${user_id} to Programme ${newProgrammeId}");
+      await db.query(
+        `INSERT INTO user_programmes (user_id, programme_id, academic_year) VALUES (?, ?, ?)`, [user_id, newProgrammeId, academic_year]);
+    }
 
-  res.redirect("/admin");
+    res.redirect("/admin");
 
-   } catch (error) {
+  } catch (error) {
     console.error("Database error details: ", error.message);
     res.status(500).send("Database error: " + error.message);
   }
@@ -309,7 +302,7 @@ app.get("/admin/viewofficers", isAdmin, async (req, res) => {
 
   const params = [];
 
-   if (searchQuery){
+  if (searchQuery) {
     selectAllOfficers += ` AND (users.first_name LIKE ? OR users.last_name LIKE ? OR programmes.programme_name LIKE ?)`;
     const term = `%${searchQuery}%`;
     //% wildcard allows for partial matches
@@ -318,21 +311,21 @@ app.get("/admin/viewofficers", isAdmin, async (req, res) => {
 
   selectAllOfficers += ` GROUP BY users.id`;
 
-    if (filterValue === "Without Assignments"){
-      selectAllOfficers += " HAVING assignment_count = 0";
-    }else if (filterValue === "With Assignments"){
-      selectAllOfficers += ` HAVING assignment_count > 0`
-    }
+  if (filterValue === "Without Assignments") {
+    selectAllOfficers += " HAVING assignment_count = 0";
+  } else if (filterValue === "With Assignments") {
+    selectAllOfficers += ` HAVING assignment_count > 0`
+  }
 
-     const programmes = await getAllProgrammesWithOfficers(db, searchQuery, filterValue);
+  const programmes = await getAllProgrammesWithOfficers(db, searchQuery, filterValue);
 
   try {
-     const [officers] = await db.query(selectAllOfficers, params);
-  
-  res.render("viewofficers", { officers, currentSearch: searchQuery, currentFilter: filterValue });
+    const [officers] = await db.query(selectAllOfficers, params);
+
+    res.render("viewofficers", { officers, currentSearch: searchQuery, currentFilter: filterValue });
 
   } catch (error) {
-    console.log("FULL SQL ERROR:", error.sqlMessage); 
+    console.log("FULL SQL ERROR:", error.sqlMessage);
     res.status(500).send("Database Error: " + error.sqlMessage);
   }
 
@@ -345,9 +338,9 @@ app.get("/admin/officerinfo/:user_id", isAdmin, async (req, res) => {
   const user_id = req.params.user_id;
 
   const [info] = await db.query(`SELECT id as user_id, first_name, last_name, username FROM users WHERE id = ? AND role_id = 2`, [user_id]);
-  
+
   const officer = info[0] || {};
-  
+
   const currentProgrammesSQL = `SELECT programmes.id, programmes.programme_name, programmes.award_type, programmes.pathway, programmes.academic_year
   FROM programmes
   JOIN user_programmes ON programmes.id = user_programmes.programme_id
@@ -357,50 +350,59 @@ app.get("/admin/officerinfo/:user_id", isAdmin, async (req, res) => {
 
   const unassignedProgrammes = await getUnassignedProgrammes();
 
-  res.render("officerinfo", { officer, unassignedProgrammes, currentProgrammes});
+  res.render("officerinfo", { officer, unassignedProgrammes, currentProgrammes });
 
 });
 
 
 
-app.post("/admin/officerinfo/:user_id", isAdmin, async (req,res) => {
+app.post("/admin/officerinfo/:user_id", isAdmin, async (req, res) => {
 
   const user_id = req.params.user_id;
-  const { first_name, last_name, username, password, programme_ids } = req.body;
+  const { action, first_name, last_name, username, password, programme_ids } = req.body;
 
-  try{
+  try {
 
-  let editOfficerSQL = `UPDATE users SET first_name = ?, last_name = ?, username = ?`;
-  let params = [first_name, last_name, username];
+    if (action === 'save') {
 
-  if (password && password.trim() != ""){
+      let editOfficerSQL = `UPDATE users SET first_name = ?, last_name = ?, username = ?`;
+      let params = [first_name, last_name, username];
 
-    const hashedPass = await bcrypt.hash(password, 10);
-    editOfficerSQL += `, password = ?`;
-    params.push(hashedPass);
+      if (password && password.trim() != "") {
 
-  } 
+        const hashedPass = await bcrypt.hash(password, 10);
+        editOfficerSQL += `, password = ?`;
+        params.push(hashedPass);
 
-  editOfficerSQL += ` WHERE id = ?`;
-  params.push(user_id);
+      }
 
-  await db.query(editOfficerSQL, params);
+      editOfficerSQL += ` WHERE id = ?`;
+      params.push(user_id);
 
-  await db.query(`DELETE FROM user_programmes WHERE user_id = ?`, [user_id]);
- 
-   if (programme_ids){
-    const idArray = Array.isArray(programme_ids) ? programme_ids : [programme_ids];
+      await db.query(editOfficerSQL, params);
 
-    for (let p_id of idArray){
-    await db.query(`INSERT INTO user_programmes (user_id, programme_id, academic_year) SELECT ?, id, academic_year
-    FROM programmes WHERE id = ?`, [user_id, p_id]);
-  }
+      await db.query(`DELETE FROM user_programmes WHERE user_id = ?`, [user_id]);
 
-  }
+      if (programme_ids) {
+        const idArray = Array.isArray(programme_ids) ? programme_ids : [programme_ids];
 
-  res.redirect("/admin/viewofficers");
+        for (let p_id of idArray) {
+          await db.query(`INSERT INTO user_programmes (user_id, programme_id, academic_year) SELECT ?, id, academic_year
+          FROM programmes WHERE id = ?`, [user_id, p_id]);
+        }
 
-   } catch (error) {
+      }
+    } else if (action === 'delete') {
+
+      await db.query(`DELETE FROM user_programmes WHERE user_id = ?`, [user_id]);
+
+      await db.query(`DELETE FROM users WHERE id = ?`, [user_id]);
+
+    }
+
+    res.redirect("/admin/viewofficers");
+
+  } catch (error) {
     console.error("Error updating officer");
     res.status(500).send("Database error");
   }
@@ -411,7 +413,7 @@ app.post("/admin/officerinfo/:user_id", isAdmin, async (req,res) => {
 //sql statement
 const getAllProgrammesWithOfficers = async (db, searchQuery = "", filterValue = "") => {
 
-   let selectAllProgrammes = `SELECT programmes.id AS id, programmes.programme_name, programmes.award_type, programmes.pathway, programmes.academic_year, programmes.y1_weight, programmes.y2_weight, programmes.y3_weight,
+  let selectAllProgrammes = `SELECT programmes.id AS id, programmes.programme_name, programmes.award_type, programmes.pathway, programmes.academic_year, programmes.y1_weight, programmes.y2_weight, programmes.y3_weight,
     programmes.min_1st, programmes.min_2_1, programmes.min_2_2, programmes.min_3rd, programmes.max_failed_credits_allowed, 
     programmes.min_compensation_mark, programmes.dissertation_min_pass, users.first_name, users.last_name 
   FROM programmes
@@ -421,13 +423,13 @@ const getAllProgrammesWithOfficers = async (db, searchQuery = "", filterValue = 
 
   const params = [];
 
-    if (filterValue === "Unassigned"){
-      selectAllProgrammes += " AND user_programmes.user_id IS NULL";
-    }else if (filterValue === "Assigned"){
-      selectAllProgrammes += ` AND user_programmes.user_id IS NOT NULL`
-    }
+  if (filterValue === "Unassigned") {
+    selectAllProgrammes += " AND user_programmes.user_id IS NULL";
+  } else if (filterValue === "Assigned") {
+    selectAllProgrammes += ` AND user_programmes.user_id IS NOT NULL`
+  }
 
-  if (searchQuery){
+  if (searchQuery) {
     selectAllProgrammes += ` AND (programmes.programme_name LIKE ? OR programmes.award_type LIKE ? OR programmes.academic_year LIKE ?)`;
     const term = `%${searchQuery}%`;
     //% wildcard allows for partial matches
@@ -458,18 +460,18 @@ const getProgrammeWithOfficersById = async (db, id) => {
 
 
 app.get("/admin/viewprogrammes", isAdmin, async (req, res) => {
- 
+
   const searchQuery = req.query.search || "";
   const filterValue = req.query.filter || "";
 
   try {
-  
-     const programmes = await getAllProgrammesWithOfficers(db, searchQuery, filterValue);
 
-  res.render("viewprogrammes", { programmes, currentSearch: searchQuery, currentFilter: filterValue });
+    const programmes = await getAllProgrammesWithOfficers(db, searchQuery, filterValue);
+
+    res.render("viewprogrammes", { programmes, currentSearch: searchQuery, currentFilter: filterValue });
 
   } catch (error) {
-    console.log("Database Error", error.sqlMessage); 
+    console.log("Database Error", error.sqlMessage);
     res.status(500).send("Database Error: " + error.sqlMessage);
   }
 
@@ -484,63 +486,114 @@ app.get("/admin/programmeinfo/:programme_id", isAdmin, async (req, res) => {
 
   try {
 
-  const programmes = await getAllProgrammesWithOfficers(db, searchQuery);
+    const programmes = await getAllProgrammesWithOfficers(db, searchQuery);
 
-  const allClassOfficers = `SELECT id, users.first_name, users.last_name, users.username FROM users WHERE users.role_id = 2`;
-  const [officers] = await db.query(allClassOfficers);
+    const allClassOfficers = `SELECT id, users.first_name, users.last_name, users.username FROM users WHERE users.role_id = 2`;
+    const [officers] = await db.query(allClassOfficers);
 
-  const programme = await getProgrammeWithOfficersById(db, programme_id);
+    const programme = await getProgrammeWithOfficersById(db, programme_id);
 
-  if (!programme) return res.status(404).send("Not found");
+    if (!programme) return res.status(404).send("Not found");
 
-  res.render("programmeinfo", { programme, officers, programmes, searchQuery });
+    res.render("programmeinfo", { programme, officers, programmes, searchQuery });
 
   } catch (error) {
-    console.log("Database Error", error.sqlMessage); 
+    console.log("Database Error", error.sqlMessage);
     res.status(500).send("Database Error: " + error.sqlMessage);
   }
 
 });
 
 
-app.post("/admin/programmeinfo/:programme_id", isAdmin, async (req,res) => {
+app.post("/admin/programmeinfo/:programme_id", isAdmin, async (req, res) => {
 
   const programme_id = req.params.programme_id;
-  const { programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, 
+  const { action, programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd,
     max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass, user_id } = req.body;
 
-  try{
+  try {
 
-   const totalWeight = parseFloat(y1_weight)+parseFloat(y2_weight)+ parseFloat(y3_weight);
-   const difference = totalWeight - 1.0;
+    if (action === 'save'){
 
-   if (Math.abs(difference) > 0.001){
-    return res.status(400).send("Error. Yearly weighting must sum to 1.0")
-   }
+    const totalWeight = parseFloat(y1_weight) + parseFloat(y2_weight) + parseFloat(y3_weight);
+    const difference = totalWeight - 1.0;
 
-   const resit_capped = req.body.resit_capped ? 1 : 0;
+    if (Math.abs(difference) > 0.001) {
+      return res.status(400).send("Error. Yearly weighting must sum to 1.0")
+    }
 
-  let editProgrammeSQL = `UPDATE programmes SET programme_name = ?, award_type = ?, pathway = ?, academic_year = ?, y1_weight = ?, y2_weight = ?, y3_weight = ?, min_1st = ?, min_2_1 = ?, min_2_2 = ?, min_3rd = ?, resit_capped = ?, 
+    const resit_capped = req.body.resit_capped ? 1 : 0;
+
+    let editProgrammeSQL = `UPDATE programmes SET programme_name = ?, award_type = ?, pathway = ?, academic_year = ?, y1_weight = ?, y2_weight = ?, y3_weight = ?, min_1st = ?, min_2_1 = ?, min_2_2 = ?, min_3rd = ?, resit_capped = ?, 
     max_failed_credits_allowed = ?, min_compensation_mark = ?, dissertation_min_pass = ? WHERE id = ?`;
 
-  const params = [programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped, 
-    max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass, programme_id];
+    const params = [programme_name, award_type, pathway, academic_year, y1_weight, y2_weight, y3_weight, min_1st, min_2_1, min_2_2, min_3rd, resit_capped,
+      max_failed_credits_allowed, min_compensation_mark, dissertation_min_pass, programme_id];
 
-  await db.query(editProgrammeSQL, params);
+    await db.query(editProgrammeSQL, params);
 
-  await db.query(`DELETE FROM user_programmes WHERE programme_id = ?`, [programme_id]);
+    await db.query(`DELETE FROM user_programmes WHERE programme_id = ?`, [programme_id]);
 
-  if (user_id) {
+    if (user_id) {
       await db.query(
         `INSERT INTO user_programmes (user_id, programme_id, academic_year) VALUES (?, ?, ?)`, [user_id, programme_id, academic_year]);
     }
 
-  res.redirect("/admin/viewprogrammes");
+  }else if (action === 'delete'){
 
-   } catch (error) {
-    console.error("Error updating officer");
+    await db.query(`DELETE FROM grades WHERE student_id IN (SELECT id FROM students WHERE programme_id = ?)`, [programme_id]);
+
+    await db.query(`DELETE FROM user_programmes WHERE programme_id = ?`, [programme_id]);
+
+    await db.query(`DELETE FROM students WHERE programme_id = ?`, [programme_id]);
+
+    await db.query(`DELETE FROM modules WHERE programme_id = ?`, [programme_id]);
+
+    await db.query('DELETE FROM programmes WHERE id = ?', [programme_id]);
+
+  }
+
+    res.redirect("/admin/viewprogrammes");
+
+  } catch (error) {
+    console.error("Error updating programme");
     res.status(500).send("Database error");
   }
+
+});
+
+
+app.get("/officer", isOfficer, async (req, res) => {
+
+  try {
+
+    const user_id = req.session.user.id;
+
+    const currentUserSQL = `SELECT * FROM users WHERE id = ?`;
+
+    const [currentUserArray] = await db.query(currentUserSQL, [user_id]);
+
+    const currentUser = currentUserArray[0];
+
+    const dashboardSQL = `SELECT programmes.*, COUNT(students.id) AS total_students, 
+    SUM(CASE WHEN students.mitigating_circumstances = 1 THEN 1 ELSE 0 END) AS flagged_students
+    FROM programmes 
+    JOIN user_programmes ON programmes.id = user_programmes.programme_id
+    LEFT JOIN students ON programmes.id = students.programme_id
+    WHERE user_programmes.user_id = ?
+    GROUP BY programmes.id`;
+
+    const [myProgrammes] = await db.query(dashboardSQL, [user_id]);
+
+    res.render("officer.ejs", { myProgrammes: myProgrammes || [], currentUser: currentUser });
+
+
+  } catch (error) {
+    console.error("Database error", error);
+    res.status(500).send("error");
+
+  }
+
 
 });
 
