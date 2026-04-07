@@ -68,11 +68,13 @@ CREATE TABLE students (
     final_classification VARCHAR(50),
     is_manual_override BOOLEAN,
     rationale VARCHAR(1000),
+    review_status VARCHAR(50),
     FOREIGN KEY (programme_id) REFERENCES programmes(id)
 );
 
 CREATE TABLE modules (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    module_code VARCHAR(50),
     module_name VARCHAR(255) NOT NULL, 
     credits INT NOT NULL DEFAULT 20,
     level INT NOT NULL,
@@ -131,82 +133,84 @@ const seedData = async () => {
 
 
 
-    --  Modules for BSc Computer Science (Ensuring 120 credits per level) 
-    
-    -- Level 1 (Year 1: Pass only, no contribution to classification)
-    INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
-    ('Programming 101', 20, 1, 1), ('Computing Theory', 20, 1, 1), 
-    ('Mathematics for CS', 20, 1, 1), ('Web Foundations', 20, 1, 1), 
-    ('Networking Basics', 20, 1, 1), ('Professional Practice', 20, 1, 1);
+  -- Level 1
+INSERT INTO modules (module_code, module_name, credits, level, programme_id) VALUES 
+('CS101', 'Programming 101', 20, 1, 1), 
+('CS102', 'Computing Theory', 20, 1, 1), 
+('CS103', 'Mathematics for CS', 20, 1, 1), 
+('CS104', 'Web Foundations', 20, 1, 1), 
+('CS105', 'Networking Basics', 20, 1, 1), 
+('CS106', 'Professional Practice', 20, 1, 1);
 
-    -- Level 2 (Year 2: 30% Weighting)
-    INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
-    ('Data Structures', 20, 2, 1), ('Software Engineering', 20, 2, 1), 
-    ('Database Systems', 20, 2, 1), ('Algorithms', 20, 2, 1), 
-    ('Systems Architecture', 20, 2, 1), ('Object Oriented Design', 20, 2, 1);
+-- Level 2
+INSERT INTO modules (module_code, module_name, credits, level, programme_id) VALUES 
+('CS201', 'Data Structures', 20, 2, 1), 
+('CS202', 'Software Engineering', 20, 2, 1), 
+('CS203', 'Database Systems', 20, 2, 1), 
+('CS204', 'Algorithms', 20, 2, 1), 
+('CS205', 'Systems Architecture', 20, 2, 1), 
+('CS206', 'Object Oriented Design', 20, 2, 1);
 
-    -- Level 3 (Year 3: 70% Weighting)
-    INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
-    ('Honours Project', 40, 3, 1), ('Machine Learning', 20, 3, 1), 
-    ('Concurrent Systems', 20, 3, 1), ('Cyber Security', 20, 3, 1), 
-    ('User Experience', 20, 3, 1);
+-- Level 3
+INSERT INTO modules (module_code, module_name, credits, level, programme_id) VALUES 
+('CS301', 'Honours Project', 40, 3, 1), 
+('CS302', 'Machine Learning', 20, 3, 1), 
+('CS303', 'Concurrent Systems', 20, 3, 1), 
+('CS304', 'Cyber Security', 20, 3, 1), 
+('CS305', 'User Experience', 20, 3, 1);
 
-    --  Modules for BA Fine Art (programme_id: 2)
+ -- Level 1
+INSERT INTO modules (module_code, module_name, credits, level, programme_id) VALUES 
+('FA101', 'Introduction to Studio Practice', 20, 1, 2), 
+('FA102', 'Art History: Renaissance to Modern', 20, 1, 2), 
+('FA103', 'Drawing & Observation', 20, 1, 2), 
+('FA104', 'Digital Media in Art', 20, 1, 2), 
+('FA105', 'Color Theory & Application', 20, 1, 2), 
+('FA106', 'Critical Thinking in Art', 20, 1, 2);
 
-    -- Level 1 (Year 1: Pass only)
-    INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
-    ('Introduction to Studio Practice', 20, 1, 2), 
-    ('Art History: Renaissance to Modern', 20, 1, 2), 
-    ('Drawing & Observation', 20, 1, 2), 
-    ('Digital Media in Art', 20, 1, 2), 
-    ('Color Theory & Application', 20, 1, 2), 
-    ('Critical Thinking in Art', 20, 1, 2);
+-- Level 2
+INSERT INTO modules (module_code, module_name, credits, level, programme_id) VALUES 
+('FA201', 'Contemporary Art Theory', 20, 2, 2), 
+('FA202', 'Intermediate Studio Practice', 20, 2, 2), 
+('FA203', 'Sculpture & Spatial Design', 20, 2, 2), 
+('FA204', 'Printmaking Techniques', 20, 2, 2), 
+('FA205', 'Photography as Art', 20, 2, 2), 
+('FA206', 'Professional Art Practice', 20, 2, 2);
 
-    -- Level 2 (Year 2: 30% Weighting)
-    INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
-    ('Contemporary Art Theory', 20, 2, 2), 
-    ('Intermediate Studio Practice', 20, 2, 2), 
-    ('Sculpture & Spatial Design', 20, 2, 2), 
-    ('Printmaking Techniques', 20, 2, 2), 
-    ('Photography as Art', 20, 2, 2), 
-    ('Professional Art Practice', 20, 2, 2);
+-- Level 3
+INSERT INTO modules (module_code, module_name, credits, level, programme_id) VALUES 
+('FA301', 'Final Degree Exhibition', 40, 3, 2), 
+('FA302', 'Curatorial Studies', 20, 3, 2), 
+('FA303', 'Global Perspectives in Art', 20, 3, 2), 
+('FA304', 'Advanced Studio Research', 20, 3, 2), 
+('FA305', 'Art & The Public Sphere', 20, 3, 2);
 
-    -- Level 3 (Year 3: 70% Weighting)
-    INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
-    ('Final Degree Exhibition', 40, 3, 2), 
-    ('Curatorial Studies', 20, 3, 2), 
-    ('Global Perspectives in Art', 20, 3, 2), 
-    ('Advanced Studio Research', 20, 3, 2), 
-    ('Art & The Public Sphere', 20, 3, 2);
+ -- Level 1
+INSERT INTO modules (module_code, module_name, credits, level, programme_id) VALUES 
+('MA101', 'Calculus I', 20, 1, 3),
+('MA102', 'Linear Algebra I', 20, 1, 3),
+('MA103', 'Probability and Statistics', 20, 1, 3),
+('MA104', 'Discrete Mathematics', 20, 1, 3),
+('MA105', 'Mathematical Proofs and Logic', 20, 1, 3),
+('MA106', 'Computational Mathematics', 20, 1, 3);
 
-    -- Modules for Mathematics (programme_id: 3)
+-- Level 2
+INSERT INTO modules (module_code, module_name, credits, level, programme_id) VALUES 
+('MA201', 'Multivariable Calculus', 20, 2, 3),
+('MA202', 'Abstract Algebra', 20, 2, 3),
+('MA203', 'Real Analysis', 20, 2, 3),
+('MA204', 'Differential Equations', 20, 2, 3),
+('MA205', 'Numerical Methods', 20, 2, 3),
+('MA206', 'Vector Analysis', 20, 2, 3);
 
-    -- Year 1 (Level 1): Total 120 Credits
-INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
-('Calculus I', 20, 1, 3),
-('Linear Algebra I', 20, 1, 3),
-('Probability and Statistics', 20, 1, 3),
-('Discrete Mathematics', 20, 1, 3),
-('Mathematical Proofs and Logic', 20, 1, 3),
-('Computational Mathematics', 20, 1, 3);
-
--- Year 2 (Level 2): Total 120 Credits
-INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
-('Multivariable Calculus', 20, 2, 3),
-('Abstract Algebra', 20, 2, 3),
-('Real Analysis', 20, 2, 3),
-('Differential Equations', 20, 2, 3),
-('Numerical Methods', 20, 2, 3),
-('Vector Analysis', 20, 2, 3);
-
--- Year 3 (Level 3): Total 120 Credits
-INSERT INTO modules (module_name, credits, level, programme_id) VALUES 
-('Complex Analysis', 20, 3, 3),
-('Number Theory', 20, 3, 3),
-('Topology', 20, 3, 3),
-('Fluid Mechanics', 20, 3, 3),
-('Stochastic Processes', 20, 3, 3),
-('Mathematics Dissertation', 20, 3, 3);
+-- Level 3
+INSERT INTO modules (module_code, module_name, credits, level, programme_id) VALUES 
+('MA301', 'Complex Analysis', 20, 3, 3),
+('MA302', 'Number Theory', 20, 3, 3),
+('MA303', 'Topology', 20, 3, 3),
+('MA304', 'Fluid Mechanics', 20, 3, 3),
+('MA305', 'Stochastic Processes', 20, 3, 3),
+('MA306', 'Mathematics Dissertation', 20, 3, 3);
 
 
 INSERT INTO students (
@@ -220,22 +224,23 @@ INSERT INTO students (
     proposed_classification,
     final_classification,
     is_manual_override,
-    rationale
+    rationale,
+    review_status
 ) VALUES 
-('40175341', 'Laura', 'Smith', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175342', 'James', 'Brown', 3, 1, 1, '2025/2026', NULL, NULL, 0, NULL),
-('40175343', 'Emily', 'Davis', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175344', 'Michael', 'Wilson', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175345', 'Sarah', 'Miller', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175346', 'David', 'Moore', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175347', 'Jessica', 'Taylor', 3, 1, 1, '2025/2026', NULL, NULL, 0, NULL),
-('40175348', 'Daniel', 'Anderson', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175349', 'Sophie', 'Thomas', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175350', 'Ryan', 'Jackson', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175351', 'Chloe', 'White', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175352', 'Liam', 'Vance', 3, 2, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175353', 'Chloe', 'Bennet', 3, 2, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40175354', 'Marcus', 'Reed', 3, 2, 0, '2025/2026', NULL, NULL, 0, NULL);
+('40175341', 'Laura', 'Smith', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40175342', 'James', 'Brown', 3, 1, 1, '2025/2026', NULL, NULL, 0, NULL, 'Flagged'),
+('40175343', 'Emily', 'Davis', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL, 'Approved'),
+('40175344', 'Michael', 'Wilson', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL, 'Approved'),
+('40175345', 'Sarah', 'Miller', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40175346', 'David', 'Moore', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL, 'Approved'),
+('40175347', 'Jessica', 'Taylor', 3, 1, 1, '2025/2026', NULL, NULL, 0, NULL, 'Flagged'),
+('40175348', 'Daniel', 'Anderson', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40175349', 'Sophie', 'Thomas', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40175350', 'Ryan', 'Jackson', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40175351', 'Chloe', 'White', 3, 1, 0, '2025/2026', NULL, NULL, 0, NULL, 'Approved'),
+('40175352', 'Liam', 'Vance', 3, 2, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40175353', 'Chloe', 'Bennet', 3, 2, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40175354', 'Marcus', 'Reed', 3, 2, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval');
 
 INSERT INTO students (
     student_number, 
@@ -248,15 +253,16 @@ INSERT INTO students (
     proposed_classification,
     final_classification,
     is_manual_override,
-    rationale
+    rationale,
+    review_status
 ) VALUES 
-('40200101', 'Alice', 'Wonder', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40200102', 'Bob', 'Builder', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL),
-('40200103', 'Charlie', 'Alpha', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40200104', 'Daisy', 'Miller', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40200105', 'Edward', 'Norton', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL),
-('40200106', 'Fiona', 'Gallagher', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL),
-('40200107', 'George', 'Hargreeves', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL);
+('40200101', 'Alice', 'Wonder', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40200102', 'Bob', 'Builder', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL, 'Flagged'),
+('40200103', 'Charlie', 'Alpha', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40200104', 'Daisy', 'Miller', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Approved'),
+('40200105', 'Edward', 'Norton', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL, 'Flagged'),
+('40200106', 'Fiona', 'Gallagher', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40200107', 'George', 'Hargreeves', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval');
 
 INSERT INTO students (
     student_number, 
@@ -269,18 +275,21 @@ INSERT INTO students (
     proposed_classification,
     final_classification,
     is_manual_override,
-    rationale
+    rationale,
+    review_status
 ) VALUES 
 -- Programme 3 (Mathematics) - Level 2
-('40200201', 'Oliver', 'Atom', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL),
-('40200202', 'Bella', 'Swan', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL),
-('40200203', 'Kevin', 'Flynn', 2, 10, 1, '2026/2027', NULL, NULL, 0, NULL),
-('40200204', 'Diana', 'Prince', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL),
+('40200201', 'Oliver', 'Atom', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40200202', 'Bella', 'Swan', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40200203', 'Kevin', 'Flynn', 2, 10, 1, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40200204', 'Diana', 'Prince', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
 
 -- Programme 1 (Computer Science) - Level 2
-('40100201', 'Elliot', 'Alderson', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL),
-('40100202', 'Angela', 'Moss', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL),
-('40100203', 'Tyrell', 'Wellick', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL);
+('40100201', 'Elliot', 'Alderson', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40100202', 'Angela', 'Moss', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40100203', 'Tyrell', 'Wellick', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL, NULL);
+
+
 
      -- Year 1 
     INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES 

@@ -495,7 +495,7 @@ app.get("/admin/programmeinfo/:programme_id", isAdmin, async (req, res) => {
 
     if (!programme) return res.status(404).send("Not found");
 
-    res.render("programmeinfo", { programme, officers, programmes, searchQuery });
+    res.render("programmeinfo", { programme, officers, programmes, currentSearch: searchQuery });
 
   } catch (error) {
     console.log("Database Error", error.sqlMessage);
@@ -567,6 +567,8 @@ app.get("/officer", isOfficer, async (req, res) => {
 
   try {
 
+    const searchQuery = req.query.search || "";
+
     const user_id = req.session.user.id;
 
     const currentUserSQL = `SELECT * FROM users WHERE id = ?`;
@@ -575,17 +577,27 @@ app.get("/officer", isOfficer, async (req, res) => {
 
     const currentUser = currentUserArray[0];
 
-    const dashboardSQL = `SELECT programmes.*, COUNT(students.id) AS total_students, 
+    let params = [user_id];
+
+    let dashboardSQL = `SELECT programmes.*, COUNT(students.id) AS total_students, 
     SUM(CASE WHEN students.mitigating_circumstances = 1 THEN 1 ELSE 0 END) AS flagged_students
     FROM programmes 
     JOIN user_programmes ON programmes.id = user_programmes.programme_id
     LEFT JOIN students ON programmes.id = students.programme_id
-    WHERE user_programmes.user_id = ?
-    GROUP BY programmes.id`;
+    WHERE user_programmes.user_id = ?`;
 
-    const [myProgrammes] = await db.query(dashboardSQL, [user_id]);
+      if (searchQuery) {
+    dashboardSQL += ` AND (programmes.programme_name LIKE ? OR programmes.award_type LIKE ? OR programmes.academic_year LIKE ?)`;
+    const term = `%${searchQuery}%`;
+    //% wildcard allows for partial matches
+    params.push(term, term, term);
+  }
 
-    res.render("officer.ejs", { myProgrammes: myProgrammes || [], currentUser: currentUser });
+   dashboardSQL += ` GROUP BY programmes.id`;
+
+    const [myProgrammes] = await db.query(dashboardSQL, params);
+
+    res.render("officer.ejs", { myProgrammes: myProgrammes || [], currentUser: currentUser, currentSearch: searchQuery });
 
 
   } catch (error) {
@@ -594,6 +606,63 @@ app.get("/officer", isOfficer, async (req, res) => {
 
   }
 
+
+});
+
+
+app.get("/officer/viewstudents/:programme_id", isOfficer, async (req, res) => {
+
+  const programme_id = req.params.programme_id;
+  const searchQuery = req.query.search || "";
+  const filterValue = req.query.filter || "";
+
+  let getAllStudentsOnProgramme = `SELECT students.*, programmes.programme_name, programmes.award_type, programmes.pathway, programmes.academic_year FROM students
+  LEFT JOIN programmes ON students.programme_id = programmes.id
+  WHERE students.programme_id = ?`;
+
+  let params = [programme_id];
+
+  if (filterValue === "Approved") {
+    getAllStudentsOnProgramme += ` AND review_status = 'Approved'`
+  } else if (filterValue === "Awaiting Approval") {
+    getAllStudentsOnProgramme += ` AND review_status = 'Awaiting Approval'`
+  } else if (filterValue === "Manual Review Required"){
+    getAllStudentsOnProgramme += ` AND review_status = 'Flagged'`;
+  }
+
+     if (searchQuery) {
+    getAllStudentsOnProgramme += ` AND (students.first_name LIKE ? OR students.last_name LIKE ? OR students.student_number LIKE ?)`;
+    const term = `%${searchQuery}%`;
+    //% wildcard allows for partial matches
+    params.push(term, term, term);
+  }
+
+  const [studentList] = await db.query(getAllStudentsOnProgramme, params);
+
+  res.render("viewstudents.ejs", {programme_id:programme_id, studentList, currentSearch: searchQuery, currentFilter:filterValue});
+
+});
+
+
+app.get("/officer/viewstudents/:programme_id/:student_id", isOfficer, async (req, res) => {
+
+  const student_id = req.params.student_id;
+
+  const programme_id = req.params.programme_id;
+
+  let gradesSQL = `SELECT students.student_number, students.first_name, students.last_name, students.current_level,
+  students.mitigating_circumstances, students.cohort_year, students.proposed_classification, students.final_classification,
+  students.is_manual_override, students.rationale, students.review_status,
+  grades.*, modules.module_code, modules.module_name, modules.credits, modules.level FROM students
+  LEFT JOIN grades ON students.id = grades.student_id
+  INNER JOIN modules ON grades.module_id = modules.id
+  WHERE students.id = ?`;
+
+  const [grades] = await db.query(gradesSQL, [student_id]);
+
+  let rulesSQL = `SELECT * FROM programmes WHERE programmes.id = ?`;
+
+  const [rules] = await db.query(rulesSQL, [programme_id]);
 
 });
 

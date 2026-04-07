@@ -33,15 +33,15 @@
                     <div class="col-md-6">
                         <div class="container-fluid">
                             <form action="/admin/viewprogrammes" method="GET" class="d-flex" role="search">
-                                <input name="search" class="form-control" type="search"
+                                <input name="hidden" class="form-control" type="search"
                                     placeholder="Search by programme name, award type or academic year"
-                                    aria-label="Search" />
+                                    aria-label="Search"> <input type="hidden" name="filter" value="<%= currentFilter %>">
                                 <button class="btn btn-outline-secondary bg-secondary text-white"
                                     type="submit">Search</button>
                                     </form>
-                            <form action="/admin/viewofficers" method="GET" class="d-flex">
+                            <form action="/admin/viewprogrammes" method="GET" class="d-flex">
                                 <input type="hidden" name="search" value="<%= currentSearch %>">
-                                <select class="form-select" name="filter">
+                                <select class="form-select" name="filter" onchange="this.form.submit()">
                                     <option value="All" <%= (!currentFilter ||currentFilter === 'All') ? 'selected' : '' %>>All</option>
                                     <option value="Assigned" <%= currentFilter === 'Assigned' ? 'selected' : '' %>>Assigned</option>
                                     <option value="Unassigned" <%= currentFilter === 'Unassigned' ? 'selected' : '' %>>Unassigned</option>
