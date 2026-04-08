@@ -62,7 +62,7 @@
                 <% studentList.forEach( (student)=> { %>
 
                     <div class="item p-3 border mb-2 bg-white bg-opacity-70">
-                        <a href="/officer/viewstudents/:programme_id/:student_id">
+                        <a href="/officer/viewstudents/<%= programme_id %>/<%= student.id %>">
                             <div class="fw-bold">
                                 <%= student.first_name %> <%= student.last_name %> (<%= student.student_number %>)
                                                 <div class="text-muted small">

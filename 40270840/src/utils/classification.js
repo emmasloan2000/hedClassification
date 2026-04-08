@@ -23,6 +23,8 @@ export const calculateClassification = (grades, rules) => {
         let levelWeightedSum = 0;
         let totalLevelCredits = 0;
         let totalFailedCredits = 0;
+        let dissertationFail = false;
+        let word = "dissertation";
 
         gradeArray.forEach(grade => {
 
@@ -40,13 +42,17 @@ export const calculateClassification = (grades, rules) => {
                 totalFailedCredits += grade.credits;
             }
 
+            if (grade.module_name.toLowerCase().includes(word) && grade.mark < rules.dissertation_min_pass){
+                dissertationFail = true;
+            }
+
 
             levelWeightedSum += finalMark;
             totalLevelCredits += grade.credits;
 
         });
 
-            const average = levelWeightedSum / totalLevelCredits || 1;
+            const average = levelWeightedSum / totalLevelCredits || 0;
 
             gradeArray.forEach(grade => {
 
@@ -59,7 +65,9 @@ export const calculateClassification = (grades, rules) => {
 
         });
 
-        return average;
+
+
+        return {average, dissertationFail};
 
 
     };
@@ -69,16 +77,21 @@ export const calculateClassification = (grades, rules) => {
     const level2Average = processGrades(level2Grades);
     const level3Average = processGrades(level3Grades);
 
-
-    const totalAverage = (level1Average * rules.y1_weight) + (level2Average * rules.y2_weight) + (level3Average * rules.y3_weight);
-
+    const hasDissertationFail = level1Average.dissertationFail || level2Average.dissertationFail || level3Average.dissertationFail;
 
 
-    let proposedClassification = "";
+    const totalAverage = (level1Average.average * rules.y1_weight) + (level2Average.average * rules.y2_weight) + (level3Average.average * rules.y3_weight);
+
+
+
+    let proposedClassification = "Fail";
     let isBorderline = false;
 
-    if (rules.y1_weight == 0 && level1Average >= 40) {
-        if (totalAverage >= 70) {
+    const passedAllLevels = level1Average.average >= 40 && level2Average.average >=40 && level3Average.average >=40;
+
+    if (passedAllLevels && !hasDissertationFail) {
+
+      if (totalAverage >= 70) {
             proposedClassification = "First Class Honours (1st)"
 
         } else if (totalAverage >= 60 && totalAverage < 70) {
@@ -101,7 +114,7 @@ export const calculateClassification = (grades, rules) => {
                 isBorderline = true;
             }
 
-        } else if (totalAverage < 40) {
+        } else {
             proposedClassification = "Fail"
 
             if (totalAverage >= 39) {
@@ -114,9 +127,13 @@ export const calculateClassification = (grades, rules) => {
         totalAverage: totalAverage.toFixed(2),
         proposedClassification,
         isBorderline,
-        level1Average: level1Average.toFixed(1),
-        level2Average: level2Average.toFixed(1),
-        level3Average: level3Average.toFixed(1)
+        level1Average: level1Average.average.toFixed(1),
+        level2Average: level2Average.average.toFixed(1),
+        level3Average: level3Average.average.toFixed(1),
+        hasDissertationFail,
+        level1Grades,
+        level2Grades,
+        level3Grades
     };
 
 }

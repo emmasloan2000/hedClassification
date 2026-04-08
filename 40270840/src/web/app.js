@@ -4,6 +4,7 @@ import path from "path";
 import bcrypt from 'bcrypt';
 import { fileURLToPath } from "url";
 import db from '../config/db.js';
+import { calculateClassification } from "../utils/classification.js";
 import MySQLStoreFactory from 'express-mysql-session';
 
 
@@ -655,22 +656,32 @@ app.get("/officer/viewstudents/:programme_id/:student_id", isOfficer, async (req
   students.is_manual_override, students.rationale, students.review_status,
   grades.*, modules.module_code, modules.module_name, modules.credits, modules.level FROM students
   LEFT JOIN grades ON students.id = grades.student_id
-  INNER JOIN modules ON grades.module_id = modules.id
+  LEFT JOIN modules ON grades.module_id = modules.id
   WHERE students.id = ?`;
 
   const [grades] = await db.query(gradesSQL, [student_id]);
 
+  const student = grades[0];
+
   let rulesSQL = `SELECT * FROM programmes WHERE programmes.id = ?`;
 
   const [rules] = await db.query(rulesSQL, [programme_id]);
+
+
+  const result = calculateClassification(grades, rules[0]);
+
+  const needsFlagged = result.isBorderline || grades.mitigtating_circumstances;
+
+  res.render("studentrecord.ejs", {programme_id:programme_id, grades:grades, rules:rules, result:result, needsFlagged:needsFlagged, student:student});
 
 });
 
 
 
 //navbar dry
-//change name of app.js and entry point in package.json
+
 //messages if no officers found etc.
+
 //viewofficers. button to go back to full list after filtering
 
 app.listen(PORT, (err) => {

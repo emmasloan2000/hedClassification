@@ -147,7 +147,7 @@ h1{
 }
 
 .btn-primary{
-    background-color: #ab2323;
+    background-color: #ab2323 !important;
 }
 
 .container-officer-info{
