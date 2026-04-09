@@ -677,6 +677,138 @@ app.get("/officer/viewstudents/:programme_id/:student_id", isOfficer, async (req
 });
 
 
+app.post("/officer/editpersonaldetails/:programme_id/:student.id", isOfficer, async (req, res) => {
+
+    const programme_id = req.params.programme_id;
+    const student_id = req.params.student.id;
+
+    const { action, student_number, first_name, last_name, cohort_year, mitigating_circumstances} = req.body;
+
+  try {
+
+    if (action === 'save') {
+
+      let editStudentSQL = `UPDATE students SET student_number = ?, first_name = ?, last_name = ?, cohort_year = ?, mitigating_circumstances = ?`;
+      let params = [student_number, first_name, last_name, cohort_year, mitigating_circumstances];
+
+      editStudentSQL += ` WHERE id = ?`;
+      params.push(student_id);
+
+      await db.query(editStudentSQL, params);
+
+      await db.query(`DELETE FROM user_programmes WHERE user_id = ?`, [user_id]);
+
+      }
+   
+    res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
+
+  } catch (error) {
+    console.error("Error updating officer");
+    res.status(500).send("Database error");
+  }
+
+});
+
+
+app.post("/officer/override/:programme_id/:student.id", isOfficer, async (req, res) => {
+
+    const programme_id = req.params.programme_id;
+    const student_id = req.params.student.id;
+
+    const { action, review_status, classification, manual_override, rationale} = req.body;
+
+  try {
+
+    if (action === 'save') {
+
+      let editStudentSQL = `UPDATE students SET review_status = ?, proposed_classification = ?, is_manual_override = 1, rationale = ?`;
+      let params = [review_status, classification, manual_override, rationale];
+
+      editOfficerSQL += ` WHERE id = ?`;
+      params.push(student_id);
+
+      await db.query(editStudentSQL, params);
+
+      }
+   
+    res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
+
+  } catch (error) {
+    console.error("Error updating officer");
+    res.status(500).send("Database error");
+  }
+
+});
+
+
+app.post("/officer/editmodulemarks/:programme_id/:student.id", isOfficer, async (req, res) => {
+
+    const programme_id = req.params.programme_id;
+    const student_id = req.params.student.id;
+
+    const { grade_id, mark } = req.body;
+
+  try {
+
+    const gradeIds = Array.isArray(grade_id) ? grade_id : [grade_id];
+    const marks = Array.isArray(mark) ? mark : [mark];
+
+    if (action === 'save') {
+
+      for (let i = 0; i < gradeIds.length; i++){
+        const currentId = gradeIds[i];
+        const currentMark = marks[i];
+
+        let params = [currentMark, currentId];
+
+        const editGradeSQL = `UPDATE grades SET mark = ? WHERE id = ?`;
+        await db.query(editGradeSQL, params);
+
+      }
+
+      }
+   
+    res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
+
+  } catch (error) {
+    console.error("Error updating officer");
+    res.status(500).send("Database error");
+  }
+
+});
+
+
+
+app.post("/officer/approve/:programme_id/:student.id", isOfficer, async (req, res) => {
+
+    const programme_id = req.params.programme_id;
+    const student_id = req.params.student.id;
+
+    const { action, review_status, classification, manual_override, rationale} = req.body;
+
+  try {
+
+   
+
+      let editStudentSQL = `UPDATE students SET review_status = 'Approved' WHERE id = ?`;
+
+      await db.query(editStudentSQL, [student_id]);
+
+      
+   
+    res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
+
+  } catch (error) {
+    console.error("Error updating officer");
+    res.status(500).send("Database error");
+  }
+
+});
+
+
+
+
+
 
 //navbar dry
 
