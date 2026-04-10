@@ -25,35 +25,52 @@
 
         <div class="row heading-container pb-1">
             <div class="row p-1 text-center">
-                <h1><%= studentList[0]?.award_type %> <%= studentList[0]?.programme_name %> (<%= studentList[0]?.pathway %>) - <%= studentList[0]?.academic_year %></h1>
+                <h1>
+                    <%= studentList[0]?.award_type %>
+                        <%= studentList[0]?.programme_name %> (<%= studentList[0]?.pathway %>) - <%=
+                                    studentList[0]?.academic_year %>
+                </h1>
                 <h2>Students</h2>
             </div>
-            <nav class="heading p-1">
+            <nav class="heading">
                 <div class="row">
+                  
                     <div class="col-md-6">
-                        <div class="container-fluid">
-                            <form action="/officer/viewstudents/<%= studentList[0]?.programme_id || programme_id %>" method="GET" class="d-flex" role="search">
+                        <div class="container-fluid pb-0">
+                            <form action="/officer/viewstudents/<%= studentList[0]?.programme_id || programme_id %>"
+                                method="GET" class="d-flex" role="search">
                                 <input name="search" class="form-control" type="search"
-                                    placeholder="Search by student name or number"
-                                    aria-label="Search"> <input type="hidden" name="filter" value="<%= currentFilter %>">
+                                    placeholder="Search by student name or number" aria-label="Search"> <input
+                                    type="hidden" name="filter" value="<%= currentFilter %>">
 
                                 <button class="btn btn-outline-secondary bg-secondary text-white"
                                     type="submit">Search</button>
-                                    </form>
-                            <form action="/officer/viewstudents/<%= studentList[0]?.programme_id || programme_id %>" method="GET" class="d-flex">
+                            </form>
+                            <form action="/officer/viewstudents/<%= studentList[0]?.programme_id || programme_id %>"
+                                method="GET" class="d-flex">
                                 <input type="hidden" name="search" value="<%= currentSearch %>">
                                 <select class="form-select" name="filter" onchange="this.form.submit()">
-                                    <option value="All" <%= (!currentFilter ||currentFilter === 'All') ? 'selected' : '' %>>All</option>
-                                    <option value="Approved" <%= currentFilter === 'Approved' ? 'selected' : '' %>>Approved</option>
-                                    <option value="Awaiting Approval" <%= currentFilter === 'Awaiting Approval' ? 'selected' : '' %>>Awaiting Approval</option>
-                                    <option value="Manual Review Required" <%= currentFilter === 'Manual Review Required' ? 'selected' : '' %>>Manual Review Required</option>
+                                    <option value="All" <%=(!currentFilter ||currentFilter==='All' ) ? 'selected' : ''
+                                        %>>All</option>
+                                    <option value="Approved" <%=currentFilter==='Approved' ? 'selected' : '' %>>Approved
+                                    </option>
+                                    <option value="Awaiting Approval" <%=currentFilter==='Awaiting Approval'
+                                        ? 'selected' : '' %>>Awaiting Approval</option>
+                                    <option value="Manual Review Required" <%=currentFilter==='Manual Review Required'
+                                        ? 'selected' : '' %>>Manual Review Required</option>
                                 </select>
                                 <button type="submit" class="btn btn-secondary">Filter</button>
                             </form>
                         </div>
                     </div>
+                   
                 </div>
             </nav>
+            <div class="row pt-0">
+                <div class="col-md-6 text-center">
+                 <a href="/officer/addstudent/<%= programme_id %>" class="btn btn-primary w-100">Add student</a>
+                </div>
+            </div>
         </div>
 
         <div class="row mb-4 pt-2 officer-list-row">
@@ -64,10 +81,11 @@
                     <div class="item p-3 border mb-2 bg-white bg-opacity-70">
                         <a href="/officer/viewstudents/<%= programme_id %>/<%= student.id %>">
                             <div class="fw-bold">
-                                <%= student.first_name %> <%= student.last_name %> (<%= student.student_number %>)
-                                                <div class="text-muted small">
-                                                    Classification Status : <%=student.review_status%>
-                                                </div>
+                                <%= student.first_name %>
+                                    <%= student.last_name %> (<%= student.student_number %>)
+                                            <div class="text-muted small">
+                                                Classification Status : <%=student.review_status%>
+                                            </div>
                             </div>
                         </a>
                     </div>

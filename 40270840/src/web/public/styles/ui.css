@@ -173,6 +173,10 @@ h1{
     align-items: center;
 }
 
+.bg-custom-brand {
+    background-color: beige !important;
+}
+
 
 @media (max-width: 768px){
     .navbar img {

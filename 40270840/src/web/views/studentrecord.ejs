@@ -47,8 +47,8 @@
                     </div>
 
                     <div class="card-body">
-                        <form id="studentForm" action="/officer/editpersonaldetails/<%= programme_id %>/<%= student.id %>"
-                            method="POST">
+                        <form id="studentForm"
+                            action="/officer/editpersonaldetails/<%= programme_id %>/<%= student.id %>" method="POST">
                             <fieldset id="detailsForm" disabled>
 
                                 <div class="mb-3">
@@ -79,16 +79,8 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Cohort Year</label>
-                                    <select class="form-select" name="cohort_year">
-                                        <option value="2026/2027" <%=student.cohort_year==='2026/2027' ? 'selected' : ''
-                                            %>>2026/2027</option>
-                                        <option value="2025/2026" <%=student.cohort_year==='2025/2026' ? 'selected' : ''
-                                            %>>2025/2026</option>
-                                        <option value="2024/2025" <%=student.cohort_year==='2024/2025' ? 'selected' : ''
-                                            %>>2024/2025</option>
-                                        <option value="2023/2024" <%=student.cohort_year==='2023/2024' ? 'selected' : ''
-                                            %>>2023/2024</option>
-                                    </select>
+                                    <input type="text" name="cohort_year" class="form-control"
+                                        value="<%= student.cohort_year %>" disabled>
                                 </div>
 
                                 <div class="mb-3">
@@ -101,7 +93,8 @@
                                     </select>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                                <button type="submit" name="action" value="save" class="btn btn-primary w-100">Save
+                                    Changes</button>
 
                             </fieldset>
                         </form>
@@ -120,7 +113,8 @@
                                 onclick="toggleEditMode('classificationForm', this)">
                                 <i class="bi bi-pencil"></i> Override
                             </button>
-                            <form action="/officer/approve/<%= programme_id %>/<%= student.id %>" method="POST" class="m-0">
+                            <form action="/officer/approve/<%= programme_id %>/<%= student.id %>" method="POST"
+                                class="m-0">
                                 <button type="submit" class="btn btn-primary btn-sm">Approve</button>
                             </form>
                         </div>
@@ -157,20 +151,22 @@
                                     <div class="col-md-3 mb-3">
                                         <label class="form-label">Classification</label>
                                         <select class="form-select" name="classification">
-                                            <option value="First Class Honours (1st)"
-                                                <%=result.proposed_classification==='First Class Honours (1st)'
-                                                ? 'selected' : '' %>>1st</option>
-                                            <option value="Upper Second Class Honours (2:1)"
-                                                <%=result.proposed_classification==='Upper Second Class Honours (2:1)'
-                                                ? 'selected' : '' %>>2:1</option>
-                                            <option value="Lower Second Class Honours (2:2)"
-                                                <%=result.proposed_classification==='2:2' ? 'selected' : '' %>>Lower
-                                                Second Class Honours (2:2)</option>
-                                            <option value="Third Class Honours (3rd)"
-                                                <%=result.proposed_classification==='3rd' ? 'selected' : '' %>>Third
-                                                Class Honours (3rd)</option>
-                                            <option value="Fail" <%=result.proposed_classification==='Fail' ? 'selected'
-                                                : '' %>>Fail</option>
+                                            <% let currentStatus=student.final_classification ||
+                                                student.proposed_classification;%>
+                                                <option value="First Class Honours"
+                                                    <%=currentStatus==='First Class Honours' ? 'selected' : '' %>>1st
+                                                </option>
+                                                <option value="Upper Second Class Honours"
+                                                    <%=currentStatus==='Upper Second Class Honours' ? 'selected' : '' %>
+                                                    >2:1</option>
+                                                <option value="Lower Second Class Honours"
+                                                    <%=currentStatus==='Lower Second Class Honours' ? 'selected' : '' %>
+                                                    >2:2</option>
+                                                <option value="Third Class Honours"
+                                                    <%=currentStatus==='Third Class Honours' ? 'selected' : '' %>>Third
+                                                    Class Honours (3rd)</option>
+                                                <option value="Fail" <%=currentStatus==='Fail' ? 'selected' : '' %>>Fail
+                                                </option>
                                         </select>
                                     </div>
 
@@ -208,7 +204,8 @@
                                         rows="4"><%- (student.rationale) ? student.rationale :(result.isBorderline) ? "Candidate is in borderline range and flagged for manual review. Final decision based on [Insert board decision]." :(student.mitigating_circumstances) ? "Candidate has mitigating circumstances and is flagged for manual review. Final decision based on [Insert board decision]." :"Classification automatically calculated based on academic performance and credit achievement. No manual override required."_%></textarea>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary" name="action" value="save">Save Changes</button>
+                                <button type="submit" class="btn btn-primary" name="action" value="save">Save
+                                    Changes</button>
 
 
 
@@ -232,7 +229,8 @@
                     </div>
                     <div class="card-body">
                         <form id="studentForm" action="/officer/editmodulemarks/<%= programme_id %>/<%= student.id %>"
-                            method="POST">
+                            method="POST"
+                            onsubmit="this.querySelectorAll('select, input').forEach(i => i.disabled = false)">
                             <fieldset id="marksForm" disabled>
 
                                 <h6 class="text-muted border-bottom pb-2">Level 1</h6>
@@ -242,6 +240,8 @@
 
                                         <thead>
                                             <tr>
+                                                <th scope="col"></th>
+                                                <th scope="col">Level</th>
                                                 <th scope="col">Module Code</th>
                                                 <th scope="col">Module Name</th>
                                                 <th scope="col">Credits</th>
@@ -250,96 +250,65 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <% result.level1Grades.forEach((grade)=> { %>
+                                            <% modules.forEach((module)=> {
+                                                const result = grades.find(result => result.module_id === module.id);
+                                                const currentMark = result ? result.mark : '';
+                                                const isResit = result ? result.is_resit : 0;
+                                                const isEnrolled = result && result.mark != null;
+                                                %>
                                                 <tr>
                                                     <td>
-                                                        <%= grade.module_code %>
+                                                        <input type="checkbox" name="module_checkbox"
+                                                            value="<%= module.module_code %>" <%=(result &&
+                                                            result.module_id) ? 'checked' : '' %>
+                                                        <%= (student.current_level !==module.level) ? 'disabled' : '' %>
+                                                            >
                                                     </td>
 
                                                     <td>
-                                                        <%= grade.module_name %>
+                                                        <%= module.level %>
                                                     </td>
 
                                                     <td>
-                                                        <%= grade.credits %>
+                                                        <%= module.module_code %>
                                                     </td>
 
                                                     <td>
-                                                        <input type="hidden" name="grade_id" value="<%= grade.id %>">
-                                                        <input type="text" name="mark" class="form-control"
-                                                            value="<%= grade.mark %>">
-                                                    </td>
-
-                                                    <% if (grade.is_resit==1){ %>
-
-                                                        <td>
-                                                            Yes
-                                                        </td>
-
-                                                        <%} else if (grade.is_resit==0){ %>
-                                                            <td>
-                                                                No
-                                                            </td>
-                                                            <%}%>
-                                                </tr>
-
-
-                                                <%})%>
-                                        </tbody>
-
-
-
-                                    </table>
-                                </div>
-
-
-
-                                <h6 class="table-muted border-bottom pb-2">Level 2</h6>
-
-                                <div class="table-responsive mb-4">
-                                    <table class="table table-sm table-bordered table-hover">
-
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Module Code</th>
-                                                <th scope="col">Module Name</th>
-                                                <th scope="col">Credits</th>
-                                                <th scope="col">Mark</th>
-                                                <th scope="col">Resit</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% result.level2Grades.forEach((grade)=> { %>
-                                                <tr>
-                                                    <td>
-                                                        <%= grade.module_code %>
+                                                        <%= module.module_name %>
                                                     </td>
 
                                                     <td>
-                                                        <%= grade.module_name %>
+                                                        <%= module.credits %>
                                                     </td>
 
                                                     <td>
-                                                        <%= grade.credits %>
+
+                                                        <input type="number" name="mark_<%=module.module_code%>"
+                                                            class="form-control" min="0" max="100" step="0.2"
+                                                            value="<%=currentMark%>" <%=(student.current_level
+                                                            !==module.level) ? 'readonly' : '' %>
+                                                        >
+
                                                     </td>
 
                                                     <td>
-                                                        <input type="hidden" name="grade_id" value="<%= grade.id %>">
-                                                        <input type="text" name="mark" class="form-control"
-                                                            value="<%= grade.mark %>">
+                                                        <% if (student.current_level !==module.level) { %>
+                                                            <span>
+                                                                <%= isResit==1 ? 'Yes' : 'No' %>
+                                                            </span>
+                                                            <input type="hidden" name="resit_<%=module.module_code%>"
+                                                                value="<%= isResit %>">
+                                                            <% } else { %>
+                                                                <select name="resit_<%=module.module_code%>"
+                                                                    class="form-select form-select-sm">
+                                                                    <option value="1" <%=isResit==1 ? 'selected' : '' %>
+                                                                        >Yes</option>
+                                                                    <option value="0" <%=isResit==0 ? 'selected' : '' %>
+                                                                        >No</option>
+                                                                </select>
+                                                                <% } %>
                                                     </td>
 
-                                                    <% if (grade.is_resit==1){ %>
-
-                                                        <td>
-                                                            Yes
-                                                        </td>
-
-                                                        <%} else if (grade.is_resit==0){ %>
-                                                            <td>
-                                                                No
-                                                            </td>
-                                                            <%}%>
                                                 </tr>
 
 
@@ -353,69 +322,8 @@
                                 </div>
 
 
-
-                                <h6 class="text-muted border-bottom pb-2">Level 3</h6>
-
-                                <div class="table-responsive mb-4">
-                                    <table class="table table-sm table-bordered table-hover">
-
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Module Code</th>
-                                                <th scope="col">Module Name</th>
-                                                <th scope="col">Credits</th>
-                                                <th scope="col">Mark</th>
-                                                <th scope="col">Resit</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% result.level3Grades.forEach((grade)=> { %>
-                                                <tr>
-                                                    <td>
-                                                        <%= grade.module_code %>
-                                                    </td>
-
-                                                    <td>
-                                                        <%= grade.module_name %>
-                                                    </td>
-
-                                                    <td>
-                                                        <%= grade.credits %>
-                                                    </td>
-
-                                                    <td>
-                                                        <input type="hidden" name="grade_id" value="<%= grade.id %>">
-                                                        <input type="text" name="mark" class="form-control"
-                                                            value="<%= grade.mark %>">
-                                                    </td>
-
-                                                    <% if (grade.is_resit==1){ %>
-
-                                                        <td>
-                                                            Yes
-                                                        </td>
-
-                                                        <%} else if (grade.is_resit==0){ %>
-                                                            <td>
-                                                                No
-                                                            </td>
-                                                            <%}%>
-                                                </tr>
-
-
-                                                <%})%>
-                                        </tbody>
-
-
-
-                                    </table>
-
-                                </div>
-
-
-
-
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="submit" name="action" value="save" class="btn btn-primary">Save
+                                    Changes</button>
 
 
                             </fieldset>
@@ -458,6 +366,7 @@
                 btn.innerText = 'Cancel';
             } else {
                 if (confirm("Discard unsaved changes?")) {
+                    fieldset.setAttribute('disabled', true);
                     location.reload();
                 }
             }

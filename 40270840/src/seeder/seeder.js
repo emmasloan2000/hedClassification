@@ -97,6 +97,7 @@ CREATE TABLE grades (
     module_id INT,
     mark DECIMAL(5,2),
     is_resit BOOLEAN DEFAULT FALSE,
+    UNIQUE (student_id, module_id),
     FOREIGN KEY (student_id) REFERENCES students(id),
     FOREIGN KEY (module_id) REFERENCES modules(id)
 );

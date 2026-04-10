@@ -92,23 +92,23 @@ export const calculateClassification = (grades, rules) => {
     if (passedAllLevels && !hasDissertationFail) {
 
       if (totalAverage >= 70) {
-            proposedClassification = "First Class Honours (1st)"
+            proposedClassification = "First Class Honours"
 
         } else if (totalAverage >= 60 && totalAverage < 70) {
-            proposedClassification = "Upper Second Class Honours (2:1)"
+            proposedClassification = "Upper Second Class Honours"
 
             if (totalAverage >= 69) {
                 isBorderline = true;
             }
         } else if (totalAverage >= 50 && totalAverage < 60) {
-            proposedClassification = "Lower Second Class Honours (2:2)"
+            proposedClassification = "Lower Second Class Honours"
 
             if (totalAverage >= 59) {
                 isBorderline = true;
             }
 
         } else if (totalAverage >= 40 && totalAverage < 50) {
-            proposedClassification = "Third Class Honours (3rd)"
+            proposedClassification = "Third Class Honours"
 
             if (totalAverage >= 49) {
                 isBorderline = true;

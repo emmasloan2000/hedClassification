@@ -27,7 +27,8 @@ app.use(session({
   store: sessionStore,
   saveUninitialized: false,
   resave: false,
-  cookie: { secure: false }
+  rolling: true,
+  cookie: { secure: false,  maxAge: 10 * 60 * 1000}
 })
 );
 
@@ -242,7 +243,6 @@ app.get("/admin/addprogramme", isAdmin, async (req, res) => {
 
 app.post("/admin/addprogramme", isAdmin, async (req, res) => {
 
-  console.log("Form data recieved: ", req.body);
 
   try {
 
@@ -645,13 +645,23 @@ app.get("/officer/viewstudents/:programme_id", isOfficer, async (req, res) => {
 });
 
 
+
+
+
+
 app.get("/officer/viewstudents/:programme_id/:student_id", isOfficer, async (req, res) => {
 
   const student_id = req.params.student_id;
 
   const programme_id = req.params.programme_id;
 
-  let gradesSQL = `SELECT students.student_number, students.first_name, students.last_name, students.current_level,
+   const [modules] = await db.query(`SELECT * FROM modules WHERE programme_id = ?`, [programme_id])
+
+   const [newStudents] = await db.query(`SELECT first_name, last_name FROM students WHERE id = ?`, [student_id]);
+
+   //const student = newStudents[0];
+
+   let gradesSQL = `SELECT students.student_number, students.first_name, students.last_name, students.current_level,
   students.mitigating_circumstances, students.cohort_year, students.proposed_classification, students.final_classification,
   students.is_manual_override, students.rationale, students.review_status,
   grades.*, modules.module_code, modules.module_name, modules.credits, modules.level FROM students
@@ -665,67 +675,80 @@ app.get("/officer/viewstudents/:programme_id/:student_id", isOfficer, async (req
 
   let rulesSQL = `SELECT * FROM programmes WHERE programmes.id = ?`;
 
+
   const [rules] = await db.query(rulesSQL, [programme_id]);
 
 
   const result = calculateClassification(grades, rules[0]);
 
-  const needsFlagged = result.isBorderline || grades.mitigtating_circumstances;
+  await db.query(
+    `UPDATE students SET proposed_classification = ?, final_classification = ? WHERE id = ? AND is_manual_override = 0`, 
+    [result.proposedClassification, result.proposedClassification, student_id]);
 
-  res.render("studentrecord.ejs", {programme_id:programme_id, grades:grades, rules:rules, result:result, needsFlagged:needsFlagged, student:student});
+  const needsFlagged = result.isBorderline || grades.mitigating_circumstances;
+
+  res.render("studentrecord.ejs", {programme_id:programme_id, grades:grades, rules:rules, result:result, needsFlagged:needsFlagged, student:student, modules:modules});
 
 });
 
 
-app.post("/officer/editpersonaldetails/:programme_id/:student.id", isOfficer, async (req, res) => {
+app.post("/officer/editpersonaldetails/:programme_id/:student_id", isOfficer, async (req, res) => {
 
     const programme_id = req.params.programme_id;
-    const student_id = req.params.student.id;
+    const student_id = req.params.student_id;
 
-    const { action, student_number, first_name, last_name, cohort_year, mitigating_circumstances} = req.body;
+    const { action, student_number, first_name, last_name, mitigating_circumstances} = req.body;
+
+    const currentMc  =  (mitigating_circumstances === '1' || mitigating_circumstances === 'Yes') ? 1 : 0;
 
   try {
 
     if (action === 'save') {
 
-      let editStudentSQL = `UPDATE students SET student_number = ?, first_name = ?, last_name = ?, cohort_year = ?, mitigating_circumstances = ?`;
-      let params = [student_number, first_name, last_name, cohort_year, mitigating_circumstances];
+      let editStudentSQL;
+      let params = [student_number, first_name, last_name, currentMc, student_id];
 
-      editStudentSQL += ` WHERE id = ?`;
-      params.push(student_id);
+      if (currentMc === 1){
+        editStudentSQL = `UPDATE students SET student_number = ?, first_name = ?, last_name = ?, mitigating_circumstances = ?, review_status = 'Flagged' WHERE id = ?`;
+      
+      } else {
+        editStudentSQL = `UPDATE students SET student_number = ?, first_name = ?, last_name = ?, mitigating_circumstances = ?, review_status = 'Awaiting Approval' WHERE id = ?`;
+      
+      }
 
       await db.query(editStudentSQL, params);
 
-      await db.query(`DELETE FROM user_programmes WHERE user_id = ?`, [user_id]);
+
 
       }
    
     res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
 
   } catch (error) {
-    console.error("Error updating officer");
+    console.error("Error updating record");
     res.status(500).send("Database error");
   }
 
 });
 
 
-app.post("/officer/override/:programme_id/:student.id", isOfficer, async (req, res) => {
+app.post("/officer/override/:programme_id/:student_id", isOfficer, async (req, res) => {
+
+  console.log("Form Data:", req.body);
 
     const programme_id = req.params.programme_id;
-    const student_id = req.params.student.id;
+    const student_id = req.params.student_id;
 
     const { action, review_status, classification, manual_override, rationale} = req.body;
 
+    
+
   try {
 
     if (action === 'save') {
 
-      let editStudentSQL = `UPDATE students SET review_status = ?, proposed_classification = ?, is_manual_override = 1, rationale = ?`;
-      let params = [review_status, classification, manual_override, rationale];
-
-      editOfficerSQL += ` WHERE id = ?`;
-      params.push(student_id);
+      let editStudentSQL = `UPDATE students SET review_status = ?, final_classification = ?, is_manual_override = 1, rationale = ? WHERE id = ?`;
+      let params = [review_status, classification, rationale, student_id];
 
       await db.query(editStudentSQL, params);
 
@@ -734,44 +757,57 @@ app.post("/officer/override/:programme_id/:student.id", isOfficer, async (req, r
     res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
 
   } catch (error) {
-    console.error("Error updating officer");
+    console.error("Error updating record");
     res.status(500).send("Database error");
   }
 
 });
 
 
-app.post("/officer/editmodulemarks/:programme_id/:student.id", isOfficer, async (req, res) => {
+app.post("/officer/editmodulemarks/:programme_id/:student_id", isOfficer, async (req, res) => {
+  console.log("Form Data Received:", req.body);
 
     const programme_id = req.params.programme_id;
-    const student_id = req.params.student.id;
+    const student_id = req.params.student_id;
 
-    const { grade_id, mark } = req.body;
+    let checkboxData = req.body.module_checkbox;
+
+    let selectedModules = [];
+    if(checkboxData){
+      selectedModules = Array.isArray(checkboxData) ? checkboxData : [checkboxData];
+    }
+    
+  
 
   try {
 
-    const gradeIds = Array.isArray(grade_id) ? grade_id : [grade_id];
-    const marks = Array.isArray(mark) ? mark : [mark];
+    console.log("Selected Modules:", selectedModules);
 
-    if (action === 'save') {
+    for (const moduleCode of selectedModules){
+        console.log("Module:", moduleCode);
+  console.log("Mark:", req.body[`mark_${moduleCode}`]);
+  console.log("Resit:", req.body[`resit_${moduleCode}`]);
+     
+      const [moduleResult] = await db.query(`SELECT id FROM modules WHERE module_code = ?`, [moduleCode]);
+      if (moduleResult.length > 0){
+        const moduleId = moduleResult[0].id;
+        const markValue = parseFloat(req.body[`mark_${moduleCode}`])
+        const isResit = req.body[`resit_${moduleCode}`] === '1' ? 1 : 0;
 
-      for (let i = 0; i < gradeIds.length; i++){
-        const currentId = gradeIds[i];
-        const currentMark = marks[i];
-
-        let params = [currentMark, currentId];
-
-        const editGradeSQL = `UPDATE grades SET mark = ? WHERE id = ?`;
-        await db.query(editGradeSQL, params);
-
+        const marksSQL = `INSERT INTO grades (student_id, module_id, mark, is_resit) VALUES (?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE mark = VALUES(mark), is_resit = VALUES(is_resit)`;
+      
+      await db.query(marksSQL, [student_id, moduleId, markValue, isResit])
       }
 
-      }
-   
+      
+
+    }
+    
     res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
 
   } catch (error) {
-    console.error("Error updating officer");
+    console.error("Error updating record");
     res.status(500).send("Database error");
   }
 
@@ -779,10 +815,10 @@ app.post("/officer/editmodulemarks/:programme_id/:student.id", isOfficer, async 
 
 
 
-app.post("/officer/approve/:programme_id/:student.id", isOfficer, async (req, res) => {
+app.post("/officer/approve/:programme_id/:student_id", isOfficer, async (req, res) => {
 
     const programme_id = req.params.programme_id;
-    const student_id = req.params.student.id;
+    const student_id = req.params.student_id;
 
     const { action, review_status, classification, manual_override, rationale} = req.body;
 
@@ -799,11 +835,68 @@ app.post("/officer/approve/:programme_id/:student.id", isOfficer, async (req, re
     res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
 
   } catch (error) {
-    console.error("Error updating officer");
+    console.error("Error updating record");
     res.status(500).send("Database error");
   }
 
 });
+
+
+
+
+app.get("/officer/addstudent/:programme_id", isOfficer, async (req, res) => {
+
+  const programme_id = req.params.programme_id;
+
+  res.render("addstudent.ejs", {programme_id});
+
+});
+
+
+
+
+app.post("/officer/addstudent/:programme_id", isOfficer, async (req, res) => {
+
+    const programme_id = req.params.programme_id;
+    const student_id = req.params.student_id;
+  
+
+  try {
+
+    const { student_number, first_name, last_name, current_level, mitigating_circumstances
+    } = req.body;
+
+    const [cohortYears] = await db.query(`SELECT academic_year FROM programmes WHERE id = ?`, [programme_id])
+
+    const cohortYear = cohortYears[0].academic_year;
+
+    let mc = 0;
+
+    if (mitigating_circumstances === 'Yes'){
+      mc = 1;
+    }
+
+    const params = [student_number, first_name, last_name, current_level, programme_id, mc, cohortYear];
+
+    const addStudentSQL = `INSERT INTO students (student_number, first_name, last_name, current_level, programme_id, 
+    mitigating_circumstances, cohort_year, proposed_classification, final_classification, is_manual_override, rationale, review_status) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, 0, NULL, NULL)`;
+
+    const [result] = await db.query(addStudentSQL, params);
+
+    const newStudentId = result.insertId;
+    res.redirect(`/officer/addstudentgrades/${programme_id}/${newStudentId}`);
+   
+  } catch (error) {
+    console.error("Database error details: ", error.message);
+    res.status(500).send("Database error: " + error.message);
+  }
+
+});
+
+
+
+
 
 
 
