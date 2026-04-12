@@ -11,368 +11,377 @@
 </head>
 
 <body>
-    <nav class="navbar2">
-        <div class="logo-container">
-            <img src="/media/logo.png" alt="Logo">
-        </div>
-        <div class="logout-container">
-            <a href="/login" class="button">Logout</a>
-        </div>
-    </nav>
+    <%- include('partials/navbar') %>
 
-    <div class="container-officer-info py-6">
+        <div class="container-officer-info py-6">
 
 
-        <div class="mb-1 ps-5">
+            <div class="mb-1 ps-5">
 
-            <h4 class="Record display-6 fw-bold pt-5">Student Record</h4>
-            <h2>
-                <%=student.first_name%>
-                    <%=student.last_name%>
-            </h2>
+                <h4 class="Record display-6 fw-bold pt-5">Student Record</h4>
+                <h2>
+                    <%=student.first_name%>
+                        <%=student.last_name%>
+                </h2>
 
-        </div>
-
-
-
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <strong>Student Personal Details</strong>
-                        <button type="button" id="editToggleButton" class="btn btn-primary btn-sm"
-                            onclick="toggleEditMode('detailsForm', this)">
-                            Edit details
-                        </button>
-                    </div>
-
-                    <div class="card-body">
-                        <form id="studentForm"
-                            action="/officer/editpersonaldetails/<%= programme_id %>/<%= student.id %>" method="POST">
-                            <fieldset id="detailsForm" disabled>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Student Number</label>
-                                    <input type="text" name="student_number" class="form-control"
-                                        value="<%= student.student_number %>">
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">First Name</label>
-                                    <input type="text" name="first_name" class="form-control"
-                                        value="<%= student.first_name %>">
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Last Name</label>
-                                    <input type="text" name="last_name" class="form-control"
-                                        value="<%= student.last_name %>">
-                                </div>
-
-                                <div class="mb-3">
-                                    <p class="card-text">
-                                        <strong>Programme:</strong>
-                                        <%= rules[0].award_type %>
-                                            <%= rules[0].programme_name %> (<%= rules[0].pathway %>)
-                                    </p>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Cohort Year</label>
-                                    <input type="text" name="cohort_year" class="form-control"
-                                        value="<%= student.cohort_year %>" disabled>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Mitigating Circumstances</label>
-                                    <select class="form-select" name="mitigating_circumstances">
-                                        <option value="Yes" <%=student.mitigating_circumstances===1 ? 'selected' : '' %>
-                                            >Yes</option>
-                                        <option value="No" <%=student.mitigating_circumstances===0 ? 'selected' : '' %>
-                                            >No</option>
-                                    </select>
-                                </div>
-
-                                <button type="submit" name="action" value="save" class="btn btn-primary w-100">Save
-                                    Changes</button>
-
-                            </fieldset>
-                        </form>
-                    </div>
-                </div>
             </div>
-            <div class="col-md-8">
 
-                <div class="card shadow-sm bg-white">
-                    <div class="card-header d-flex justify-content-between align-items-center">
 
-                        <strong>Classification Details</strong>
-                        <div class="btn-toolbar gap-2">
 
-                            <button type="button" id="editToggleButton" class="btn btn-primary btn-sm px-3"
-                                onclick="toggleEditMode('classificationForm', this)">
-                                <i class="bi bi-pencil"></i> Override
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <strong>Student Personal Details</strong>
+                            <button type="button" id="editToggleButton" class="btn btn-primary btn-sm"
+                                onclick="toggleEditMode('detailsForm', this)">
+                                Edit details
                             </button>
-                            <form action="/officer/approve/<%= programme_id %>/<%= student.id %>" method="POST"
-                                class="m-0">
-                                <button type="submit" class="btn btn-primary btn-sm">Approve</button>
+                        </div>
+
+                        <div class="card-body">
+                            <form id="studentForm"
+                                action="/officer/editpersonaldetails/<%= programme_id %>/<%= student_id %>"
+                                method="POST">
+                                <fieldset id="detailsForm" disabled>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Student Number</label>
+                                        <input type="text" name="student_number" class="form-control"
+                                            value="<%= student.student_number %>">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">First Name</label>
+                                        <input type="text" name="first_name" class="form-control"
+                                            value="<%= student.first_name %>">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Last Name</label>
+                                        <input type="text" name="last_name" class="form-control"
+                                            value="<%= student.last_name %>">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <p class="card-text">
+                                            <strong>Programme:</strong>
+                                            <%= rules[0].award_type %>
+                                                <%= rules[0].programme_name %> (<%= rules[0].pathway %>)
+                                        </p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Cohort Year</label>
+                                        <input type="text" name="cohort_year" class="form-control"
+                                            value="<%= student.cohort_year %>" disabled>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Mitigating Circumstances</label>
+                                        <select class="form-select" name="mitigating_circumstances">
+                                            <option value="Yes" <%=student.mitigating_circumstances===1 ? 'selected'
+                                                : '' %>
+                                                >Yes</option>
+                                            <option value="No" <%=student.mitigating_circumstances===0 ? 'selected' : ''
+                                                %>
+                                                >No</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" name="action" value="save" class="btn btn-primary w-100">Save
+                                        Changes</button>
+
+                                </fieldset>
                             </form>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <form id="studentForm" action="/officer/override/<%= programme_id %>/<%= student.id %>"
-                            method="POST">
-                            <fieldset id="classificationForm" disabled>
+                </div>
+                <div class="col-md-8">
 
-                                <div class="row">
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label">Review Status</label>
-                                        <select class="form-select" name="review_status">
-                                            <option value="Approved" <%=student.review_status==='Approved' ? 'selected'
-                                                : '' %>>Approved</option>
-                                            <option value="Awaiting Approval"
-                                                <%=student.review_status==='Awaiting Approval' ? 'selected' : '' %>
-                                                >Awaiting Approval</option>
-                                            <option value="Manual Review Required" <%=student.review_status==='Flagged'
-                                                ? 'selected' : '' %>>Manual Review Required</option>
-                                        </select>
+                    <div class="card shadow-sm bg-white">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+
+                            <strong>Classification Details</strong>
+                            <div class="btn-toolbar gap-2">
+
+                                <button type="button" id="editToggleButton" class="btn btn-primary btn-sm px-3"
+                                    onclick="toggleEditMode('classificationForm', this)">
+                                    <i class="bi bi-pencil"></i> Override
+                                </button>
+                                <form action="/officer/approve/<%= programme_id %>/<%= student_id %>" method="POST"
+                                    class="m-0">
+                                    <button type="submit" class="btn btn-primary btn-sm">Approve</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form id="studentForm" action="/officer/override/<%= programme_id %>/<%= student_id %>"
+                                method="POST">
+                                <fieldset id="classificationForm" disabled>
+
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <label class="form-label">Review Status</label>
+                                            <select class="form-select" name="review_status">
+                                                <option value="Approved" <%=student.review_status==='Approved'
+                                                    ? 'selected' : '' %>>Approved</option>
+                                                <option value="Awaiting Approval"
+                                                    <%=student.review_status==='Awaiting Approval' ? 'selected' : '' %>
+                                                    >Awaiting Approval</option>
+                                                <option value="Manual Review Required"
+                                                    <%=student.review_status==='Flagged' ? 'selected' : '' %>>Manual
+                                                    Review Required</option>
+                                                    <option value="Pending" <%=student.review_status=== null
+                                                    ? 'selected' : '' %>>Pending</option>
+                                            </select>
+                                        </div>
+
+
+
+                                        <div class="col-md-3 mb-3">
+                                            <label class="form-label">Classification Mark</label>
+                                            <input type="text" name="classification_mark" class="form-control"
+                                                value="<%= result.totalAverage %>" disabled>
+                                        </div>
+
+
+
+                                        <div class="col-md-3 mb-3">
+                                            <label class="form-label">Classification</label>
+                                            <select class="form-select" name="classification">
+                                                <% let currentStatus=student.final_classification ||
+                                                    student.proposed_classification;%>
+                                                    <option value="First Class Honours"
+                                                        <%=currentStatus==='First Class Honours' ? 'selected' : '' %>
+                                                        >1st
+                                                    </option>
+                                                    <option value="Pending" <%= currentStatus === 'Pending' ? 'selected' : '' %>>Pending (Insufficient Credits)</option>
+                                                    <option value="Upper Second Class Honours"
+                                                        <%=currentStatus==='Upper Second Class Honours' ? 'selected'
+                                                        : '' %>
+                                                        >2:1</option>
+                                                    <option value="Lower Second Class Honours"
+                                                        <%=currentStatus==='Lower Second Class Honours' ? 'selected'
+                                                        : '' %>
+                                                        >2:2</option>
+                                                    <option value="Third Class Honours"
+                                                        <%=currentStatus==='Third Class Honours' ? 'selected' : '' %>
+                                                        >Third
+                                                        Class Honours (3rd)</option>
+                                                    <option value="Fail" <%=currentStatus==='Fail' ? 'selected' : '' %>
+                                                        >Fail
+                                                    </option>
+                                                  
+                                            </select>
+                                        </div>
+
+
+
+                                        <div class="col-md-3 mb-3">
+                                            <label class="form-label">Manual Override</label>
+                                            <select class="form-select" name="manual_override">
+                                                <option value="Yes" <%=student.is_manual_override===1 ? 'selected' : ''
+                                                    %>
+                                                    >Yes</option>
+                                                <option value="No" <%=student.is_manual_override===0 ||
+                                                    student.is_manual_override==='NULL' ? 'selected' : '' %>>No</option>
+
+                                            </select>
+                                        </div>
                                     </div>
 
 
+                                    <div class="mb-3">
+                                        <label class="form-label">Reason For Flag</label>
 
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label">Classification Mark</label>
-                                        <input type="text" name="classification_mark" class="form-control"
-                                            value="<%= result.totalAverage %>" disabled>
+                                        <% let flagValue="Not Applicaple" ; if (result.isBorderline){
+                                            flagValue="Mark is borderline: Manual Review Required" ; } else if
+                                            (student.mitigating_circumstances==1 ||
+                                            student.mitigating_circumstances==true){
+                                            flagValue="Student has mitigating circumstances. Manual Review Required" ; }
+                                            %>
+
+                                            <input type="text" name="flag_reason" class="form-control"
+                                                value="<%= flagValue %>" readonly>
                                     </div>
 
 
-
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label">Classification</label>
-                                        <select class="form-select" name="classification">
-                                            <% let currentStatus=student.final_classification ||
-                                                student.proposed_classification;%>
-                                                <option value="First Class Honours"
-                                                    <%=currentStatus==='First Class Honours' ? 'selected' : '' %>>1st
-                                                </option>
-                                                <option value="Upper Second Class Honours"
-                                                    <%=currentStatus==='Upper Second Class Honours' ? 'selected' : '' %>
-                                                    >2:1</option>
-                                                <option value="Lower Second Class Honours"
-                                                    <%=currentStatus==='Lower Second Class Honours' ? 'selected' : '' %>
-                                                    >2:2</option>
-                                                <option value="Third Class Honours"
-                                                    <%=currentStatus==='Third Class Honours' ? 'selected' : '' %>>Third
-                                                    Class Honours (3rd)</option>
-                                                <option value="Fail" <%=currentStatus==='Fail' ? 'selected' : '' %>>Fail
-                                                </option>
-                                        </select>
+                                    <div class="mb-3">
+                                        <label class="form-label">Decision Rationale</label>
+                                        <textarea name="rationale" class="form-control"
+                                            rows="4"><%- (student.rationale) ? student.rationale :(result.proposedClassification === 'Pending') ? "Academic record incomplete. Classification unavailable." :(result.isBorderline) ? "Candidate is in borderline range and flagged for manual review. Final decision based on [Insert board decision]." :(student.mitigating_circumstances) ? "Candidate has mitigating circumstances and is flagged for manual review. Final decision based on [Insert board decision]." :"Classification automatically calculated based on academic performance and credit achievement. No manual override required."_%></textarea>
                                     </div>
 
-
-
-                                    <div class="col-md-3 mb-3">
-                                        <label class="form-label">Manual Override</label>
-                                        <select class="form-select" name="manual_override">
-                                            <option value="Yes" <%=student.is_manual_override===1 ? 'selected' : '' %>
-                                                >Yes</option>
-                                            <option value="No" <%=student.is_manual_override===0 ||
-                                                student.is_manual_override==='NULL' ? 'selected' : '' %>>No</option>
-
-                                        </select>
-                                    </div>
-                                </div>
-
-
-                                <div class="mb-3">
-                                    <label class="form-label">Reason For Flag</label>
-
-                                    <% let flagValue="Not Applicaple" ; if (result.isBorderline){
-                                        flagValue="Mark is borderline: Manual Review Required" ; } else if
-                                        (student.mitigating_circumstances==1 || student.mitigating_circumstances==true){
-                                        flagValue="Student has mitigating circumstances. Manual Review Required" ; } %>
-
-                                        <input type="text" name="flag_reason" class="form-control"
-                                            value="<%= flagValue %>" readonly>
-                                </div>
-
-
-                                <div class="mb-3">
-                                    <label class="form-label">Decision Rationale</label>
-                                    <textarea name="rationale" class="form-control"
-                                        rows="4"><%- (student.rationale) ? student.rationale :(result.isBorderline) ? "Candidate is in borderline range and flagged for manual review. Final decision based on [Insert board decision]." :(student.mitigating_circumstances) ? "Candidate has mitigating circumstances and is flagged for manual review. Final decision based on [Insert board decision]." :"Classification automatically calculated based on academic performance and credit achievement. No manual override required."_%></textarea>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary" name="action" value="save">Save
-                                    Changes</button>
+                                    <button type="submit" class="btn btn-primary" name="action" value="save">Save
+                                        Changes</button>
 
 
 
-                            </fieldset>
+                                </fieldset>
 
-                        </form>
+                            </form>
 
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-md-8">
+                <div class="col-md-8">
 
-                <div class="card shadon-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <strong>Academic Record</strong>
-                        <button type="button" id="editToggleButton" class="btn btn-primary ms-3"
-                            onclick="toggleEditMode('marksForm', this)">
-                            <i class="bi bi-pencil"></i> Edit details
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <form id="studentForm" action="/officer/editmodulemarks/<%= programme_id %>/<%= student.id %>"
-                            method="POST"
-                            onsubmit="this.querySelectorAll('select, input').forEach(i => i.disabled = false)">
-                            <fieldset id="marksForm" disabled>
+                    <div class="card shadon-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <strong>Academic Record</strong>
+                            <button type="button" id="editToggleButton" class="btn btn-primary ms-3"
+                                onclick="toggleEditMode('marksForm', this)">
+                                <i class="bi bi-pencil"></i> Edit details
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <form id="studentForm"
+                                action="/officer/editmodulemarks/<%= programme_id %>/<%= student_id %>" method="POST"
+                                onsubmit="this.querySelectorAll('select, input').forEach(i => i.disabled = false)">
+                                <fieldset id="marksForm" disabled>
 
-                                <h6 class="text-muted border-bottom pb-2">Level 1</h6>
+                                    <h6 class="text-muted border-bottom pb-2">Level 1</h6>
 
-                                <div class="table-responsive mb-4">
-                                    <table class="table table-sm table-bordered table-hover">
+                                    <div class="table-responsive mb-4">
+                                        <table class="table table-sm table-bordered table-hover">
 
-                                        <thead>
-                                            <tr>
-                                                <th scope="col"></th>
-                                                <th scope="col">Level</th>
-                                                <th scope="col">Module Code</th>
-                                                <th scope="col">Module Name</th>
-                                                <th scope="col">Credits</th>
-                                                <th scope="col">Mark</th>
-                                                <th scope="col">Resit</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% modules.forEach((module)=> {
-                                                const result = grades.find(result => result.module_id === module.id);
-                                                const currentMark = result ? result.mark : '';
-                                                const isResit = result ? result.is_resit : 0;
-                                                const isEnrolled = result && result.mark != null;
-                                                %>
+                                            <thead>
                                                 <tr>
-                                                    <td>
-                                                        <input type="checkbox" name="module_checkbox"
-                                                            value="<%= module.module_code %>" <%=(result &&
-                                                            result.module_id) ? 'checked' : '' %>
-                                                        <%= (student.current_level !==module.level) ? 'disabled' : '' %>
-                                                            >
-                                                    </td>
-
-                                                    <td>
-                                                        <%= module.level %>
-                                                    </td>
-
-                                                    <td>
-                                                        <%= module.module_code %>
-                                                    </td>
-
-                                                    <td>
-                                                        <%= module.module_name %>
-                                                    </td>
-
-                                                    <td>
-                                                        <%= module.credits %>
-                                                    </td>
-
-                                                    <td>
-
-                                                        <input type="number" name="mark_<%=module.module_code%>"
-                                                            class="form-control" min="0" max="100" step="0.2"
-                                                            value="<%=currentMark%>" <%=(student.current_level
-                                                            !==module.level) ? 'readonly' : '' %>
-                                                        >
-
-                                                    </td>
-
-                                                    <td>
-                                                        <% if (student.current_level !==module.level) { %>
-                                                            <span>
-                                                                <%= isResit==1 ? 'Yes' : 'No' %>
-                                                            </span>
-                                                            <input type="hidden" name="resit_<%=module.module_code%>"
-                                                                value="<%= isResit %>">
-                                                            <% } else { %>
-                                                                <select name="resit_<%=module.module_code%>"
-                                                                    class="form-select form-select-sm">
-                                                                    <option value="1" <%=isResit==1 ? 'selected' : '' %>
-                                                                        >Yes</option>
-                                                                    <option value="0" <%=isResit==0 ? 'selected' : '' %>
-                                                                        >No</option>
-                                                                </select>
-                                                                <% } %>
-                                                    </td>
-
+                                                    <th scope="col"></th>
+                                                    <th scope="col">Level</th>
+                                                    <th scope="col">Module Code</th>
+                                                    <th scope="col">Module Name</th>
+                                                    <th scope="col">Credits</th>
+                                                    <th scope="col">Mark</th>
+                                                    <th scope="col">Resit</th>
                                                 </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% modules.forEach((module)=> {
+                                                    const result = grades.find(result => result.module_id ===
+                                                    module.id);
+                                                    const currentMark = result ? result.mark : '';
+                                                    const isResit = result ? result.is_resit : 0;
+                                                    const isEnrolled = result && result.mark != null;
+                                                    %>
+                                                    <tr>
+                                                        <td>
+                                                            <input type="checkbox" name="module_checkbox"
+                                                                value="<%= module.module_code %>" <%=(result &&
+                                                                result.module_id) ? 'checked' : '' %>
+                                                            
+                                                                >
+                                                        </td>
+
+                                                        <td>
+                                                            <%= module.level %>
+                                                        </td>
+
+                                                        <td>
+                                                            <%= module.module_code %>
+                                                        </td>
+
+                                                        <td>
+                                                            <%= module.module_name %>
+                                                        </td>
+
+                                                        <td>
+                                                            <%= module.credits %>
+                                                        </td>
+
+                                                        <td>
+
+                                                            <input type="number" name="mark_<%=module.module_code%>"
+                                                                class="form-control" min="0" max="100" step="0.2"
+                                                                value="<%=currentMark%>" 
+                                                            >
+
+                                                        </td>
+
+                                                        <td>
+                                                            
+                                                                <input type="hidden"
+                                                                    name="resit_<%=module.module_code%>">
+                                                                   
+                                                               
+                                                                    <select name="resit_<%=module.module_code%>"
+                                                                        class="form-select form-select-sm">
+                                                                        <option value="1" <%=isResit==1 ? 'selected'
+                                                                            : '' %>
+                                                                            >Yes</option>
+                                                                        <option value="0" <%=isResit==0 ? 'selected'
+                                                                            : '' %>
+                                                                            >No</option>
+                                                                    </select>
+                                                                  
+                                                        </td>
+
+                                                    </tr>
 
 
-                                                <%})%>
-                                        </tbody>
+                                                    <%})%>
+                                            </tbody>
 
 
 
-                                    </table>
+                                        </table>
 
-                                </div>
-
-
-                                <button type="submit" name="action" value="save" class="btn btn-primary">Save
-                                    Changes</button>
+                                    </div>
 
 
-                            </fieldset>
+                                    <button type="submit" name="action" value="save" class="btn btn-primary">Save
+                                        Changes</button>
 
-                        </form>
 
+                                </fieldset>
+
+                            </form>
+
+                        </div>
                     </div>
+
+
+
                 </div>
 
 
-
             </div>
+
 
 
         </div>
 
+        </div>
+        </div>
+
+        </div>
 
 
-    </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+        </script>
 
-    </div>
-    </div>
+        <script>
 
-    </div>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-    </script>
-
-    <script>
-
-        function toggleEditMode(targetId, btn) {
-            const fieldset = document.getElementById(targetId);
+            function toggleEditMode(targetId, btn) {
+                const fieldset = document.getElementById(targetId);
 
 
-            const isCurrentlyCisabled = fieldset.hasAttribute('disabled');
+                const isCurrentlyCisabled = fieldset.hasAttribute('disabled');
 
-            if (isCurrentlyCisabled) {
-                fieldset.removeAttribute('disabled');
-                btn.innerText = 'Cancel';
-            } else {
-                if (confirm("Discard unsaved changes?")) {
-                    fieldset.setAttribute('disabled', true);
-                    location.reload();
+                if (isCurrentlyCisabled) {
+                    fieldset.removeAttribute('disabled');
+                    btn.innerText = 'Cancel';
+                } else {
+                    if (confirm("Discard unsaved changes?")) {
+                        fieldset.setAttribute('disabled', true);
+                        location.reload();
+                    }
                 }
             }
-        }
 
-    </script>
+        </script>
 
 </body>
 

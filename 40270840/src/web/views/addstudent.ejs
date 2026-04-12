@@ -11,14 +11,7 @@
 </head>
 
 <body>
-    <nav class="navbar2">
-        <div class="logo-container">
-            <img src="/media/logo.png" alt="Logo">
-        </div>
-        <div class="logout-container">
-            <a href="/login" class="button">Logout</a>
-        </div>
-    </nav>
+  <%- include('partials/navbar') %>
 
     <div class="container2">
         <div class="row">
@@ -27,7 +20,7 @@
                 <div class="card bg-custom-brand">
                     <h5 class="card-header display-6">Add Student</h5>
                     <div class="card-body">
-                       <form action="/officer/addstudent/<%= programme_id %>" method="POST">
+                       <form action="/officer/addstudent/<%= programme_id %>" method="POST" >
                          <div class="mb-3">
                             <label for="student_number" class="form-label">Student Number</label>
                             <input type="text" name="student_number" class="form-control" id="student_number">

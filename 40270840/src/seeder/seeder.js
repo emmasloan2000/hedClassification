@@ -41,7 +41,8 @@ CREATE TABLE programmes (
     resit_capped BOOLEAN DEFAULT TRUE,
     max_failed_credits_allowed INT DEFAULT 0,
     min_compensation_mark INT DEFAULT 40,
-    dissertation_min_pass INT DEFAULT 40
+    dissertation_min_pass INT DEFAULT 40,
+    is_deleted BOOLEAN DEFAULT 0
 
 );
 
@@ -52,6 +53,7 @@ CREATE TABLE users (
     username VARCHAR(100) NOT NULL UNIQUE, 
     password VARCHAR(255) NOT NULL,  
     role_id INT,
+    is_deleted BOOLEAN DEFAULT 0,
     FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
@@ -69,6 +71,7 @@ CREATE TABLE students (
     is_manual_override BOOLEAN,
     rationale VARCHAR(1000),
     review_status VARCHAR(50),
+    is_deleted BOOLEAN DEFAULT 0,
     FOREIGN KEY (programme_id) REFERENCES programmes(id)
 );
 

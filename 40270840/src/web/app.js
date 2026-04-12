@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import db from '../config/db.js';
 import { calculateClassification } from "../utils/classification.js";
 import MySQLStoreFactory from 'express-mysql-session';
+import flash from 'connect-flash';
 
 
 const MySQLStore = MySQLStoreFactory(session);
@@ -48,6 +49,8 @@ app.use((req, res, next) => {
   console.log(`!!! Unauthorized access to ${req.path}. Redirecting to login.`);
   res.redirect("/");
 });
+
+
 
 const isAdmin = (req, res, next) => {
   console.log(req.session);
@@ -204,6 +207,8 @@ app.post("/admin/addofficer", isAdmin, async (req, res) => {
       }
 
     }
+    req.flash('success_msg', 'Saved successfully!');
+    console.log("Flash set!");
 
     res.redirect("/admin");
 
@@ -276,7 +281,7 @@ app.post("/admin/addprogramme", isAdmin, async (req, res) => {
         `INSERT INTO user_programmes (user_id, programme_id, academic_year) VALUES (?, ?, ?)`, [user_id, newProgrammeId, academic_year]);
     }
 
-    res.redirect("/admin");
+    res.redirect(`/admin/managemodules/${newProgrammeId}`);
 
   } catch (error) {
     console.error("Database error details: ", error.message);
@@ -284,6 +289,9 @@ app.post("/admin/addprogramme", isAdmin, async (req, res) => {
   }
 
 });
+
+
+
 
 
 
@@ -298,7 +306,7 @@ app.get("/admin/viewofficers", isAdmin, async (req, res) => {
   FROM users
   LEFT JOIN user_programmes ON users.id = user_programmes.user_id
   LEFT JOIN programmes ON user_programmes.programme_id = programmes.id
-  WHERE users.role_id = 2`;
+  WHERE users.role_id = 2 AND users.is_deleted = 0`;
 
 
   const params = [];
@@ -395,9 +403,7 @@ app.post("/admin/officerinfo/:user_id", isAdmin, async (req, res) => {
       }
     } else if (action === 'delete') {
 
-      await db.query(`DELETE FROM user_programmes WHERE user_id = ?`, [user_id]);
-
-      await db.query(`DELETE FROM users WHERE id = ?`, [user_id]);
+      await db.query(`UPDATE users SET is_deleted = 1 WHERE id = ?`, [user_id]);
 
     }
 
@@ -420,7 +426,7 @@ const getAllProgrammesWithOfficers = async (db, searchQuery = "", filterValue = 
   FROM programmes
   LEFT JOIN user_programmes ON programmes.id = user_programmes.programme_id
   LEFT JOIN users ON user_programmes.user_id = users.id
-  WHERE 1 = 1`;
+  WHERE programmes.is_deleted = 0`;
 
   const params = [];
 
@@ -487,6 +493,8 @@ app.get("/admin/programmeinfo/:programme_id", isAdmin, async (req, res) => {
 
   try {
 
+    const [modules] = await db.query(`SELECT * FROM modules WHERE programme_id = ?`, [programme_id])
+
     const programmes = await getAllProgrammesWithOfficers(db, searchQuery);
 
     const allClassOfficers = `SELECT id, users.first_name, users.last_name, users.username FROM users WHERE users.role_id = 2`;
@@ -496,7 +504,7 @@ app.get("/admin/programmeinfo/:programme_id", isAdmin, async (req, res) => {
 
     if (!programme) return res.status(404).send("Not found");
 
-    res.render("programmeinfo", { programme, officers, programmes, currentSearch: searchQuery });
+    res.render("programmeinfo", { programme, officers, programmes, currentSearch: searchQuery, modules });
 
   } catch (error) {
     console.log("Database Error", error.sqlMessage);
@@ -541,22 +549,63 @@ app.post("/admin/programmeinfo/:programme_id", isAdmin, async (req, res) => {
     }
 
   }else if (action === 'delete'){
-
-    await db.query(`DELETE FROM grades WHERE student_id IN (SELECT id FROM students WHERE programme_id = ?)`, [programme_id]);
-
-    await db.query(`DELETE FROM user_programmes WHERE programme_id = ?`, [programme_id]);
-
-    await db.query(`DELETE FROM students WHERE programme_id = ?`, [programme_id]);
-
-    await db.query(`DELETE FROM modules WHERE programme_id = ?`, [programme_id]);
-
-    await db.query('DELETE FROM programmes WHERE id = ?', [programme_id]);
+    
+    await db.query('UPDATE programmes SET is_deleted = 1 WHERE id = ?', [programme_id]);
 
   }
 
-    res.redirect("/admin/viewprogrammes");
+    res.redirect(`/admin/programmeinfo/${programme_id}`);
 
   } catch (error) {
+    console.error("Error updating programme");
+    res.status(500).send("Database error");
+  }
+
+});
+
+
+app.post("/admin/managemodules/:programme_id", isAdmin, async (req, res) => {
+
+  try{
+
+  const programme_id = req.params.programme_id;
+
+  const ids = req.body.module_id;
+  const levels = req.body.level;
+  const codes = req.body.module_code;
+  const names = req.body.module_name;
+  const credits = req.body.credits;
+
+  const modulesToSave = codes.map((code, index) => {
+    return {
+      id: ids[index],
+      level: levels[index],
+      module_code: code,
+      module_name: names[index],
+      credits: credits[index]
+    };
+  })
+
+  .filter(module => module.module_code && module.module_code.trim() != "");
+
+  for (const module of modulesToSave) {
+    if (module.id && module.id !== ''){
+
+      await db.query(`UPDATE modules SET level = ?, module_code = ?, module_name = ?, credits = ?
+        WHERE id = ? AND programme_id = ?`, [module.level, module.module_code, module.module_name, module.credits, module.id, programme_id]
+      );
+
+    } else {
+      await db.query(`INSERT INTO modules (level, module_code, module_name, credits, programme_id) VALUES (?, ?, ?, ?, ?)`,
+        [module.level, module.module_code, module.module_name, module.credits, programme_id]
+      );
+    }
+    
+  }
+
+
+res.redirect(`/admin/programmeinfo/${programme_id}`);
+ } catch (error) {
     console.error("Error updating programme");
     res.status(500).send("Database error");
   }
@@ -581,7 +630,9 @@ app.get("/officer", isOfficer, async (req, res) => {
     let params = [user_id];
 
     let dashboardSQL = `SELECT programmes.*, COUNT(students.id) AS total_students, 
-    SUM(CASE WHEN students.mitigating_circumstances = 1 THEN 1 ELSE 0 END) AS flagged_students
+    SUM(CASE WHEN students.review_status = 'Flagged' THEN 1 ELSE 0 END) AS flagged_students,
+    SUM(CASE WHEN students.review_status = 'Approved' THEN 1 ELSE 0 END) AS approved_students,
+    SUM(CASE WHEN students.review_status = 'Awaiting Approval' THEN 1 ELSE 0 END) AS awaiting_students
     FROM programmes 
     JOIN user_programmes ON programmes.id = user_programmes.programme_id
     LEFT JOIN students ON programmes.id = students.programme_id
@@ -619,7 +670,7 @@ app.get("/officer/viewstudents/:programme_id", isOfficer, async (req, res) => {
 
   let getAllStudentsOnProgramme = `SELECT students.*, programmes.programme_name, programmes.award_type, programmes.pathway, programmes.academic_year FROM students
   LEFT JOIN programmes ON students.programme_id = programmes.id
-  WHERE students.programme_id = ?`;
+  WHERE students.programme_id = ? AND students.is_deleted = 0`;
 
   let params = [programme_id];
 
@@ -655,13 +706,15 @@ app.get("/officer/viewstudents/:programme_id/:student_id", isOfficer, async (req
 
   const programme_id = req.params.programme_id;
 
+  try{
+
    const [modules] = await db.query(`SELECT * FROM modules WHERE programme_id = ?`, [programme_id])
 
-   const [newStudents] = await db.query(`SELECT first_name, last_name FROM students WHERE id = ?`, [student_id]);
+   //const [newStudents] = await db.query(`SELECT first_name, last_name FROM students WHERE id = ?`, [student_id]);
 
    //const student = newStudents[0];
 
-   let gradesSQL = `SELECT students.student_number, students.first_name, students.last_name, students.current_level,
+   let gradesSQL = `SELECT students.id AS student_real_id, students.student_number, students.first_name, students.last_name, students.current_level,
   students.mitigating_circumstances, students.cohort_year, students.proposed_classification, students.final_classification,
   students.is_manual_override, students.rationale, students.review_status,
   grades.*, modules.module_code, modules.module_name, modules.credits, modules.level FROM students
@@ -681,13 +734,25 @@ app.get("/officer/viewstudents/:programme_id/:student_id", isOfficer, async (req
 
   const result = calculateClassification(grades, rules[0]);
 
+  const classification = result.proposedClassification || "Pending"; 
+
   await db.query(
-    `UPDATE students SET proposed_classification = ?, final_classification = ? WHERE id = ? AND is_manual_override = 0`, 
-    [result.proposedClassification, result.proposedClassification, student_id]);
+  `UPDATE students SET proposed_classification = ?, final_classification = ? WHERE id = ? AND is_manual_override = 0`, 
+  [classification, classification, student_id]
+);
 
-  const needsFlagged = result.isBorderline || grades.mitigating_circumstances;
+if (student.is_manual_override === 0) {
+      student.proposed_classification = classification;
+      student.final_classification = classification;
+    }
 
-  res.render("studentrecord.ejs", {programme_id:programme_id, grades:grades, rules:rules, result:result, needsFlagged:needsFlagged, student:student, modules:modules});
+  res.render("studentrecord.ejs", {programme_id:programme_id, student_id:student_id, grades:grades, rules:rules, result:result, student:student, modules:modules});
+
+    } catch (error) {
+    console.error("Database error", error);
+    res.status(500).send("error");
+
+  }
 
 });
 
@@ -765,7 +830,7 @@ app.post("/officer/override/:programme_id/:student_id", isOfficer, async (req, r
 
 
 app.post("/officer/editmodulemarks/:programme_id/:student_id", isOfficer, async (req, res) => {
-  console.log("Form Data Received:", req.body);
+  
 
     const programme_id = req.params.programme_id;
     const student_id = req.params.student_id;
@@ -842,6 +907,16 @@ app.post("/officer/approve/:programme_id/:student_id", isOfficer, async (req, re
 });
 
 
+app.post("/officer/delete-student/:programme_id/:student_id", isOfficer, async (req, res) => {
+    try {
+        await db.query("UPDATE students SET is_deleted = 1 WHERE id = ?", [req.params.student_id]);
+        res.redirect(`/officer/viewstudents/${req.params.programme_id}`);
+    } catch (error) {
+        res.status(500).send("Error deleting student");
+    }
+});
+
+
 
 
 app.get("/officer/addstudent/:programme_id", isOfficer, async (req, res) => {
@@ -885,7 +960,7 @@ app.post("/officer/addstudent/:programme_id", isOfficer, async (req, res) => {
     const [result] = await db.query(addStudentSQL, params);
 
     const newStudentId = result.insertId;
-    res.redirect(`/officer/addstudentgrades/${programme_id}/${newStudentId}`);
+    res.redirect(`/officer/viewstudents/${programme_id}/${newStudentId}`);
    
   } catch (error) {
     console.error("Database error details: ", error.message);

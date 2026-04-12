@@ -11,14 +11,7 @@
 </head>
 
 <body>
-    <nav class="navbar2">
-        <div class="logo-container">
-            <img src="/media/logo.png" alt="Logo">
-        </div>
-        <div class="logout-container">
-            <a href="/login" class="button">Logout</a>
-        </div>
-    </nav>
+ <%- include('partials/navbar') %>
 
     <div class="container-officer-info">
 
@@ -34,7 +27,7 @@
             </div>
             <nav class="heading">
                 <div class="row">
-                  
+
                     <div class="col-md-6">
                         <div class="container-fluid pb-0">
                             <form action="/officer/viewstudents/<%= studentList[0]?.programme_id || programme_id %>"
@@ -63,12 +56,12 @@
                             </form>
                         </div>
                     </div>
-                   
+
                 </div>
             </nav>
             <div class="row pt-0">
                 <div class="col-md-6 text-center">
-                 <a href="/officer/addstudent/<%= programme_id %>" class="btn btn-primary w-100">Add student</a>
+                    <a href="/officer/addstudent/<%= programme_id %>" class="btn btn-primary w-100">Add student</a>
                 </div>
             </div>
         </div>
@@ -77,19 +70,35 @@
             <div class="allStudents">
 
                 <% studentList.forEach( (student)=> { %>
+                    <div
+                        class="item p-3 border mb-2 bg-white bg-opacity-70 d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="/officer/viewstudents/<%= programme_id %>/<%= student.id %>"
+                                class="text-decoration-none text-dark">
+                                <div class="fw-bold">
+                                    <%= student.first_name %>
+                                        <%= student.last_name %> (<%= student.student_number %>)
+                                </div>
+                                <div class="text-muted small">
+                                    Classification Status: <%= student.review_status %>
+                                </div>
+                            </a>
+                        </div>
 
-                    <div class="item p-3 border mb-2 bg-white bg-opacity-70">
-                        <a href="/officer/viewstudents/<%= programme_id %>/<%= student.id %>">
-                            <div class="fw-bold">
-                                <%= student.first_name %>
-                                    <%= student.last_name %> (<%= student.student_number %>)
-                                            <div class="text-muted small">
-                                                Classification Status : <%=student.review_status%>
-                                            </div>
-                            </div>
-                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="/officer/viewstudents/<%= programme_id %>/<%= student.id %>"
+                                class="btn btn-sm btn-primary">
+                                View
+                            </a>
+
+                            <form action="/officer/delete-student/<%= programme_id %>/<%= student.id %>" method="POST"
+                                onsubmit="return confirm('Are you sure you want to archive this student? This will hide the record but preserve grade history.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Archive
+                                </button>
+                            </form>
+                        </div>
                     </div>
-
                     <% } ); %>
 
             </div>
