@@ -1,12 +1,12 @@
 import express from "express";
 import session from 'express-session';
 import path from "path";
-//import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { fileURLToPath } from "url";
 import db from '../config/db.js';
-//import { calculateClassification } from "../utils/classification.js";
+import { calculateClassification } from "../utils/classification.js";
 import MySQLStoreFactory from 'express-mysql-session';
-//import flash from 'connect-flash';
+import flash from 'connect-flash';
 
 import adminRoutes from './routes/adminRoutes.js';
 import officerRoutes from './routes/officerRoutes.js'

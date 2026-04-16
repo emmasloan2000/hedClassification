@@ -7,11 +7,11 @@ export const getAdminDashboard = async (req, res) => {
 try {
 
     
-    const [officers] = await AdminModel.getAllClassOfficers();
+    const officers = await AdminModel.getAllClassOfficers();
 
     const counter = officers.length;
 
-    const [programmes] = await AdminModel.getAllProgrammes();
+    const programmes = await AdminModel.getAllProgrammes();
 
     const pCounter = programmes.length;
 
@@ -322,6 +322,7 @@ export const postAddOfficer = async (req, res) => {
                               const credits = req.body.credits;
                             
                               const modulesToSave = codes.map((code, index) => {
+                                
                                 return {
                                   id: ids[index],
                                   level: levels[index],

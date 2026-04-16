@@ -32,13 +32,13 @@ export const calculateClassification = (grades, rules) => {
             let isCompensatableFail = false;
 
 
-            if (grade.is_resit == true && grade.mark >= 40) {
+            if (rules.resit_capped === true && grade.is_resit == true && grade.mark >= rules.min_3rd) {
                 finalMark = 40 * grade.credits;
             } else {
                 finalMark = grade.mark * grade.credits;
             }
 
-            if (grade.mark < 40) {
+            if (grade.mark < rules.min_3rd) {
                 totalFailedCredits += grade.credits;
             }
 
@@ -56,8 +56,8 @@ export const calculateClassification = (grades, rules) => {
 
         gradeArray.forEach(grade => {
 
-            if (grade.mark < 40 && grade.mark >= rules.min_compensation_mark &&
-                totalFailedCredits <= rules.max_failed_credits_allowed && average >= 40) {
+            if (grade.mark < rules.min_3rd && grade.mark >= rules.min_compensation_mark &&
+                totalFailedCredits <= rules.max_failed_credits_allowed && average >= rules.min_3rd) {
                 grade.isCompensatableFail = true;
             } else {
                 grade.isCompensatableFail = false;
@@ -89,40 +89,40 @@ export const calculateClassification = (grades, rules) => {
     let proposedClassification = "Fail";
     let isBorderline = false;
 
-    const passedAllLevels = level1Average.average >= 40 && level2Average.average >= 40 && level3Average.average >= 40;
+    const passedAllLevels = level1Average.average >= rules.min_3rd && level2Average.average >= rules.min_3rd && level3Average.average >= rules.min_3rd;
 
     if (totalCredits === 360) {
 
 
         if (passedAllLevels && !hasDissertationFail) {
 
-            if (totalAverage >= 70) {
+            if (totalAverage >= rules.min_1st) {
                 proposedClassification = "First Class Honours"
 
-            } else if (totalAverage >= 60 && totalAverage < 70) {
+            } else if (totalAverage >= rules.min_2_1) {
                 proposedClassification = "Upper Second Class Honours"
 
-                if (totalAverage >= 69) {
+                if (totalAverage >= (rules.min_1st - 1)) {
                     isBorderline = true;
                 }
-            } else if (totalAverage >= 50 && totalAverage < 60) {
+            } else if (totalAverage >= rules.min_2_2) {
                 proposedClassification = "Lower Second Class Honours"
 
-                if (totalAverage >= 59) {
+                if (totalAverage >= (rules.min_2_1 - 1)) {
                     isBorderline = true;
                 }
 
-            } else if (totalAverage >= 40 && totalAverage < 50) {
+            } else if (totalAverage >= min_3rd) {
                 proposedClassification = "Third Class Honours"
 
-                if (totalAverage >= 49) {
+                if (totalAverage >= (rules.min_2_2 - 1)) {
                     isBorderline = true;
                 }
 
             } else {
                 proposedClassification = "Fail"
 
-                if (totalAverage >= 39) {
+                if (totalAverage >= (rules.min_3rd - 1)) {
                     isBorderline = true;
                 }
             }
