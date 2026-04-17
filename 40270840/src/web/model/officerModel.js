@@ -153,6 +153,11 @@ export const getaddGrades = async (student_id, moduleId, markValue, isResit) => 
 
 }
 
+export const removeGrade = async (student_id, module_id) => {
+  const deleteGradeSQL = `DELETE FROM grades WHERE student_id = ? AND module_id = ?`;
+  return await db.query(deleteGradeSQL, [student_id, module_id]);
+};
+
 
 export const getUpdateStatus = async (student_id) => {
 

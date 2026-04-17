@@ -3,7 +3,8 @@ import db from "../config/db.js";
 import session from 'express-session';
 import MySQLStoreFactory from 'express-mysql-session';
 import {isOfficer, isAdmin, isAssigned} from "../web/middleware/middleware.js"
-import apiRoutes from '../api/routes/officerApiRoutes.js';
+import officerApiRoutes from './routes/officerApiRoutes.js';
+import adminApiRoutes from './routes/adminApiRoutes.js';
 
 const MySQLStore = MySQLStoreFactory(session);
 const api = express();
@@ -22,7 +23,8 @@ api.use(session({
 })
 );
 
-api.use("/api", apiRoutes);
+api.use("/api/officer", officerApiRoutes);
+api.use("/api/admin", adminApiRoutes);
 
 
 

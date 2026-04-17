@@ -29,6 +29,8 @@ export const isAdmin = (req, res, next) => {
 
 
 export const isOfficer = (req, res, next) => {
+
+  console.log("Checking session on Port 4000:", req.session.user);
   
   if (req.session.user && req.session.user.role_id === 2) {
     next();

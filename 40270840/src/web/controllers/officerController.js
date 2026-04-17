@@ -11,11 +11,19 @@ export const getOfficerDashboard = async (req, res) => {
 
     const user_id = req.session.user.id;
 
-    const currentUser = await OfficerModel.getCurrentUser(user_id);
+    const response = await fetch(`http://localhost:4000/api/officer?search=${searchQuery}`,
+      {
+        headers: {
+          'Cookie': req.headers.cookie
+        }
+      }
+    );
 
-    const myProgrammes = await OfficerModel.getOfficerProgrammeStats(user_id);
+    if (!response.ok) throw new Error("API Response Error");
 
-    res.render("officer.ejs", { myProgrammes: myProgrammes || [], currentUser: currentUser, currentSearch: searchQuery });
+    const data = await response.json();
+
+    res.render("officer.ejs", { myProgrammes: data.myProgrammes || [], currentUser: data.currentUser, currentSearch: data.currentSearch });
 
 
   } catch (error) {
@@ -36,11 +44,58 @@ export const getViewStudents = async (req, res) => {
 
   try {
 
-    const apiUrl = `http://localhost:4000/api/viewstudents/${programme_id}?search=${searchQuery}&filter=${filterValue}`;
-    const response = await fetch(apiUrl);
-    const data = await response.json();
+    const response = await fetch(`http://localhost:4000/api/officer/viewstudents/${programme_id}?search=${searchQuery}&filter=${filterValue}`,
+      {
+        headers: {
+          'Cookie': req.headers.cookie
+        }
+      }
+    );
 
-    res.render("viewstudents.ejs", { programme_id: programme_id, studentList: data.studentList, currentSearch: searchQuery, currentFilter: filterValue });
+    const data = await response.json();
+    let studentListForGraph = data.studentList;
+
+    const stats = {
+      "First Class Honours": 0,
+      "Upper Second Class Honours": 0,
+      "Lower Second Class Honours": 0,
+      "Third Class Honours": 0,
+      "Fail": 0,
+      "Pending": 0
+    };
+
+    //get rules for the classification logic for graph
+
+    if (studentListForGraph.length > 0) {
+      const realId = studentListForGraph[0].id;
+      const rulesResponse = await fetch(`http://localhost:4000/api/officer/studentrecord/${programme_id}/${realId}`,
+        { headers: { 'Cookie': req.headers.cookie } }
+      );
+      const rulesData = await rulesResponse.json();
+      const rules = rulesData.rules[0];
+
+
+      studentListForGraph.forEach(student => {
+        let classification;
+
+        if (student.final_classification && student.is_manual_override) {
+          classification = student.final_classification;
+        } else {
+          const result = calculateClassification(student.grades || [], rules);
+          classification = result.proposedClassification || "Pending";
+        }
+
+        if (stats.hasOwnProperty(classification)) {
+          stats[classification]++;
+        } else {
+          stats["Pending"]++;
+        }
+
+
+      });
+    }
+
+    res.render("viewstudents.ejs", { programme_id: programme_id, stats: stats, studentList: data.studentList, currentSearch: searchQuery, currentFilter: filterValue });
 
   } catch (error) {
     console.error("API Error:", error);
@@ -60,36 +115,17 @@ export const getStudentRecord = async (req, res) => {
 
   try {
 
-    const modules = await OfficerModel.getProgrammeModules(programme_id);
+    const response = await fetch(`http://localhost:4000/api/officer/studentrecord/${programme_id}/${student_id}`,
+      {
+        headers:
+          { 'Cookie': req.headers.cookie }
+      });
 
-    const grades = await OfficerModel.getStudentGrades(student_id);
+    if (!response.ok) throw new Error("API Response Error");
 
-    const student = grades[0];
+    const data = await response.json();
 
-    const rules = await OfficerModel.getProgrammeClassRules(programme_id);
-
-    const result = calculateClassification(grades, rules[0]);
-
-    const classification = result.proposedClassification || "Pending";
-
-    const hasMC = student.mitigating_circumstances === 1 || student.mitigating_circumstances === true;
-
-    let newStatus = student.review_status;
-
-    if ((result.isBorderline || hasMC) && student.review_status !== 'Approved') {
-      newStatus = 'Flagged';
-    }
-
-    await OfficerModel.updateStudentClassification(classification, student_id, newStatus);
-
-    student.review_status = newStatus;
-
-    if (student.is_manual_override === 0) {
-      student.proposed_classification = classification;
-      student.final_classification = classification;
-    }
-
-    res.render("studentrecord.ejs", { programme_id: programme_id, student_id: student_id, grades: grades, rules: rules, result: result, student: student, modules: modules });
+    res.render("studentrecord.ejs", { programme_id: programme_id, student_id: student_id, grades: data.grades, rules: data.rules, result: data.result, student: data.student, modules: data.modules });
 
   } catch (error) {
     console.error("Database error", error);
@@ -106,27 +142,21 @@ export const postUpdateStudentPersonalDetails = async (req, res) => {
   const programme_id = req.params.programme_id;
   const student_id = req.params.student_id;
 
-  const { action, student_number, first_name, last_name, mitigating_circumstances } = req.body;
 
   try {
 
-    if (action === 'save') {
+    const response = await fetch(`http://localhost:4000/api/officer/editpersonaldetails/${programme_id}/${student_id}`,
+      {
+        method: 'POST',
+        headers:
+        {
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.cookie
+        },
+        body: JSON.stringify(req.body)
+      });
 
-      const currentMc = (mitigating_circumstances === '1' || mitigating_circumstances === 'Yes') ? 1 : 0;
-
-      let review_status;
-
-      if (currentMc === 1) {
-        review_status = 'Flagged';
-
-      } else {
-        review_status = 'Awaiting Approval';
-
-      }
-
-      await OfficerModel.updateStudentPersonalDetails(student_number, first_name, last_name, currentMc, review_status, student_id);
-
-    }
+    if (!response.ok) throw new Error("API Response Error");
 
     res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
 
@@ -144,15 +174,20 @@ export const postOverrideClassification = async (req, res) => {
   const programme_id = req.params.programme_id;
   const student_id = req.params.student_id;
 
-  const { action, review_status, classification, manual_override, rationale } = req.body;
-
   try {
 
-    if (action === 'save') {
+    const response = await fetch(`http://localhost:4000/api/officer/override/${programme_id}/${student_id}`,
+      {
+        method: 'POST',
+        headers:
+        {
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.cookie
+        },
+        body: JSON.stringify(req.body)
+      });
 
-      await OfficerModel.getOverrideClassification(review_status, classification, rationale, student_id);
-
-    }
+    if (!response.ok) throw new Error("API Response Error");
 
     res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
 
@@ -171,30 +206,20 @@ export const postEditModules = async (req, res) => {
   const programme_id = req.params.programme_id;
   const student_id = req.params.student_id;
 
-  let checkboxData = req.body.module_checkbox;
-
-  let selectedModules = [];
-  if (checkboxData) {
-    selectedModules = Array.isArray(checkboxData) ? checkboxData : [checkboxData];
-  }
-
   try {
 
-    for (const moduleCode of selectedModules) {
+    const response = await fetch(`http://localhost:4000/api/officer/editmodulemarks/${programme_id}/${student_id}`,
+      {
+        method: 'POST',
+        headers:
+        {
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.cookie
+        },
+        body: JSON.stringify(req.body)
+      });
 
-      const moduleResult = await OfficerModel.getModuleResult(moduleCode);
-      if (moduleResult.length > 0) {
-        const moduleId = moduleResult[0].id;
-        const markValue = parseFloat(req.body[`mark_${moduleCode}`])
-        const isResit = req.body[`resit_${moduleCode}`] === '1' ? 1 : 0;
-
-
-        await OfficerModel.getaddGrades(student_id, moduleId, markValue, isResit);
-      }
-
-
-
-    }
+    if (!response.ok) throw new Error("API Response Error");
 
     res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
 
@@ -211,11 +236,21 @@ export const postApproveClass = async (req, res) => {
   const programme_id = req.params.programme_id;
   const student_id = req.params.student_id;
 
-  const { action, review_status, classification, manual_override, rationale } = req.body;
 
   try {
 
-    await OfficerModel.getUpdateStatus(student_id);
+    const response = await fetch(`http://localhost:4000/api/officer/approve/${programme_id}/${student_id}`,
+      {
+        method: 'POST',
+        headers:
+        {
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.cookie
+        },
+        body: JSON.stringify(req.body)
+      });
+
+    if (!response.ok) throw new Error("API Response Error");
 
     res.redirect(`/officer/viewstudents/${programme_id}/${student_id}`);
 
@@ -235,7 +270,18 @@ export const postSoftDeleteStudent = async (req, res) => {
 
   try {
 
-    await OfficerModel.getSoftDeleteStudent(student_id);
+    const response = await fetch(`http://localhost:4000/api/officer/delete-student/${programme_id}/${student_id}`,
+      {
+        method: 'POST',
+        headers:
+        {
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.cookie
+        },
+        body: JSON.stringify(req.body)
+      });
+
+    if (!response.ok) throw new Error("API Response Error");
 
     res.redirect(`/officer/viewstudents/${programme_id}`);
 
@@ -264,23 +310,24 @@ export const postAddStudent = async (req, res) => {
 
   try {
 
-    const { student_number, first_name, last_name, current_level, mitigating_circumstances
-    } = req.body;
+    const response = await fetch(`http://localhost:4000/api/officer/addstudent/${programme_id}`,
+      {
+        method: 'POST',
+        headers:
+        {
+          'Content-Type': 'application/json',
+          'Cookie': req.headers.cookie
+        },
+        body: JSON.stringify(req.body)
+      });
 
-    const cohortYear = await OfficerModel.getCohortYear(programme_id);
+    if (!response.ok) throw new Error("API Response Error");
 
-    let mc = 0;
+    const data = await response.json();
 
-    if (mitigating_circumstances === 'Yes') {
-      mc = 1;
-    }
-
-    const newStudentId = await OfficerModel.getAddStudent(student_number, first_name, last_name, current_level, programme_id, mc, cohortYear);
-
-    res.redirect(`/officer/viewstudents/${programme_id}/${newStudentId}`);
+    res.redirect(`/officer/viewstudents/${programme_id}/${data.newStudentId}`);
 
   } catch (error) {
-    console.error("Database error details: ", error.message);
     res.status(500).send("Database error: " + error.message);
   }
 

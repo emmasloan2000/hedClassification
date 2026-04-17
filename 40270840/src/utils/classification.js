@@ -112,7 +112,7 @@ export const calculateClassification = (grades, rules) => {
                     isBorderline = true;
                 }
 
-            } else if (totalAverage >= min_3rd) {
+            } else if (totalAverage >= rules.min_3rd) {
                 proposedClassification = "Third Class Honours"
 
                 if (totalAverage >= (rules.min_2_2 - 1)) {
