@@ -1,6 +1,4 @@
-import * as OfficerModel from '../model/officerModel.js';
-import db from '../../config/db.js';
-import { calculateClassification } from '../../utils/classification.js';
+
 
 
 export const getOfficerDashboard = async (req, res) => {
@@ -8,8 +6,6 @@ export const getOfficerDashboard = async (req, res) => {
   try {
 
     const searchQuery = req.query.search || "";
-
-    const user_id = req.session.user.id;
 
     const response = await fetch(`http://localhost:4000/api/officer?search=${searchQuery}`,
       {
@@ -53,49 +49,22 @@ export const getViewStudents = async (req, res) => {
     );
 
     const data = await response.json();
-    let studentListForGraph = data.studentList;
 
-    const stats = {
-      "First Class Honours": 0,
-      "Upper Second Class Honours": 0,
-      "Lower Second Class Honours": 0,
-      "Third Class Honours": 0,
-      "Fail": 0,
-      "Pending": 0
-    };
-
-    //get rules for the classification logic for graph
-
-    if (studentListForGraph.length > 0) {
-      const realId = studentListForGraph[0].id;
-      const rulesResponse = await fetch(`http://localhost:4000/api/officer/studentrecord/${programme_id}/${realId}`,
-        { headers: { 'Cookie': req.headers.cookie } }
-      );
-      const rulesData = await rulesResponse.json();
-      const rules = rulesData.rules[0];
-
-
-      studentListForGraph.forEach(student => {
-        let classification;
-
-        if (student.final_classification && student.is_manual_override) {
-          classification = student.final_classification;
-        } else {
-          const result = calculateClassification(student.grades || [], rules);
-          classification = result.proposedClassification || "Pending";
-        }
-
-        if (stats.hasOwnProperty(classification)) {
-          stats[classification]++;
-        } else {
-          stats["Pending"]++;
-        }
-
-
-      });
+    const classificationsForGraph = data.classifications;
+    const tallies = {"First Class Honours": 0, "Upper Second Class Honours": 0,
+      "Lower Second Class Honours": 0, "Third Class Honours": 0, "Fail": 0, "Pending": 0
     }
 
-    res.render("viewstudents.ejs", { programme_id: programme_id, stats: stats, studentList: data.studentList, currentSearch: searchQuery, currentFilter: filterValue });
+    for (let i = 0; i <classificationsForGraph.length; i++){
+      const classification = classificationsForGraph[i];
+      if (tallies[classification] !== undefined){
+      tallies[classification]++;
+      }
+
+    }
+
+
+    res.render("viewstudents.ejs", { programme_id: programme_id, studentList: data.studentList, tallies:tallies, currentSearch: searchQuery, currentFilter: filterValue });
 
   } catch (error) {
     console.error("API Error:", error);
@@ -162,7 +131,7 @@ export const postUpdateStudentPersonalDetails = async (req, res) => {
 
   } catch (error) {
     console.error("Error updating record");
-    res.status(500).send("Database error");
+    res.status(500).send("Database error. Student number must be unique.");
   }
 
 };
@@ -305,7 +274,6 @@ export const getAddStudent = async (req, res) => {
 export const postAddStudent = async (req, res) => {
 
   const programme_id = req.params.programme_id;
-  const student_id = req.params.student_id;
 
 
   try {

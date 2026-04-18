@@ -2,7 +2,6 @@ import express from "express";
 import db from "../config/db.js";
 import session from 'express-session';
 import MySQLStoreFactory from 'express-mysql-session';
-import {isOfficer, isAdmin, isAssigned} from "../web/middleware/middleware.js"
 import officerApiRoutes from './routes/officerApiRoutes.js';
 import adminApiRoutes from './routes/adminApiRoutes.js';
 

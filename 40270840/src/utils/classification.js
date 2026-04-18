@@ -32,7 +32,7 @@ export const calculateClassification = (grades, rules) => {
             let isCompensatableFail = false;
 
 
-            if (rules.resit_capped === true && grade.is_resit == true && grade.mark >= rules.min_3rd) {
+            if (rules.resit_capped === 1 && grade.is_resit == 1 && grade.mark >= rules.min_3rd) {
                 finalMark = 40 * grade.credits;
             } else {
                 finalMark = grade.mark * grade.credits;
@@ -82,67 +82,76 @@ export const calculateClassification = (grades, rules) => {
     const hasDissertationFail = level1Average.dissertationFail || level2Average.dissertationFail || level3Average.dissertationFail;
 
 
-    const totalAverage = (level1Average.average * rules.y1_weight) + (level2Average.average * rules.y2_weight) + (level3Average.average * rules.y3_weight);
-
-
-
-    let proposedClassification = "Fail";
+    let proposedClassification = "Pending";
     let isBorderline = false;
+    let totalAverageDisplay = "Pending";
 
     const passedAllLevels = level1Average.average >= rules.min_3rd && level2Average.average >= rules.min_3rd && level3Average.average >= rules.min_3rd;
 
+
+    //only calculates average if student has completed 360 credits, otherwise pending
     if (totalCredits === 360) {
+        const totalAverage = (level1Average.average * rules.y1_weight) + (level2Average.average * rules.y2_weight) + (level3Average.average * rules.y3_weight);
+        totalAverageDisplay = totalAverage.toFixed(2);
 
 
-        if (passedAllLevels && !hasDissertationFail) {
 
-            if (totalAverage >= rules.min_1st) {
-                proposedClassification = "First Class Honours"
 
-            } else if (totalAverage >= rules.min_2_1) {
-                proposedClassification = "Upper Second Class Honours"
 
-                if (totalAverage >= (rules.min_1st - 1)) {
-                    isBorderline = true;
-                }
-            } else if (totalAverage >= rules.min_2_2) {
-                proposedClassification = "Lower Second Class Honours"
+        if (totalCredits === 360) {
 
-                if (totalAverage >= (rules.min_2_1 - 1)) {
-                    isBorderline = true;
-                }
 
-            } else if (totalAverage >= rules.min_3rd) {
-                proposedClassification = "Third Class Honours"
+            if (passedAllLevels && !hasDissertationFail) {
 
-                if (totalAverage >= (rules.min_2_2 - 1)) {
-                    isBorderline = true;
-                }
+                if (totalAverage >= rules.min_1st) {
+                    proposedClassification = "First Class Honours"
 
-            } else {
-                proposedClassification = "Fail"
+                } else if (totalAverage >= rules.min_2_1) {
+                    proposedClassification = "Upper Second Class Honours"
 
-                if (totalAverage >= (rules.min_3rd - 1)) {
-                    isBorderline = true;
+                    if (totalAverage >= (rules.min_1st - 1)) {
+                        isBorderline = true;
+                    }
+                } else if (totalAverage >= rules.min_2_2) {
+                    proposedClassification = "Lower Second Class Honours"
+
+                    if (totalAverage >= (rules.min_2_1 - 1)) {
+                        isBorderline = true;
+                    }
+
+                } else if (totalAverage >= rules.min_3rd) {
+                    proposedClassification = "Third Class Honours"
+
+                    if (totalAverage >= (rules.min_2_2 - 1)) {
+                        isBorderline = true;
+                    }
+
+                } else {
+                    proposedClassification = "Fail"
+
+                    if (totalAverage >= (rules.min_3rd - 1)) {
+                        isBorderline = true;
+                    }
                 }
             }
+
+        } else {
+            proposedClassification = "Pending"
         }
-
-    } else {
-        proposedClassification = "Pending"
     }
+    
 
-    return {
-        totalAverage: totalAverage.toFixed(2),
-        proposedClassification,
-        isBorderline,
-        level1Average: level1Average.average.toFixed(1),
-        level2Average: level2Average.average.toFixed(1),
-        level3Average: level3Average.average.toFixed(1),
-        hasDissertationFail,
-        level1Grades,
-        level2Grades,
-        level3Grades
-    };
+        return {
+            totalAverage: totalAverageDisplay,
+            proposedClassification,
+            isBorderline,
+            level1Average: level1Average.average.toFixed(1),
+            level2Average: level2Average.average.toFixed(1),
+            level3Average: level3Average.average.toFixed(1),
+            hasDissertationFail,
+            level1Grades,
+            level2Grades,
+            level3Grades
+        };
 
-}
+    }

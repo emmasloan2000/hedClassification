@@ -25,7 +25,7 @@ export const getAdminDashboardApi = async (req, res) => {
 
     } catch (error) {
         console.error("Database error", error);
-        res.status(500).send("error");
+        res.status(500).json({success: false, message: "Database error"});
 
     }
 };
@@ -42,7 +42,7 @@ export const getAddOfficerApi = async (req, res) => {
 
     } catch (error) {
         console.error("Database error", error);
-        res.status(500).send("error");
+        res.status(500).json({success: false, message: "Database error"});
     }
 
 };
@@ -71,7 +71,7 @@ export const postAddOfficerApi = async (req, res) => {
 
     } catch (error) {
         console.error("Error adding officer");
-        res.status(500).send("Database error");
+        res.status(500).json({success: false, message: "Database error"});
     }
 
 };
@@ -133,7 +133,7 @@ export const postAddProgrammeApi = async (req, res) => {
 
     } catch (error) {
         console.error("Database error details: ", error.message);
-        res.status(500).send("Database error: " + error.message);
+        res.status(500).json({success: false, message: "Database error"});
     }
 
 };
@@ -146,19 +146,12 @@ export const getViewOfficersApi = async (req, res) => {
 
     try {
 
-        console.log("Controller searching for:", searchQuery);
-
         const officers = await AdminModel.getAllOfficersAndTheirProgrammes(searchQuery, filterValue);
-
-        //const programmes = await AdminModel.getAllProgrammesWithOfficers(db, searchQuery, filterValue);
-
-
 
         res.json({ officers, currentSearch: searchQuery, currentFilter: filterValue });
 
     } catch (error) {
-        console.log("FULL SQL ERROR:", error.sqlMessage);
-        res.status(500).send("Database Error: " + error.sqlMessage);
+        res.status(500).json({success: false, message: "Database error"});
     }
 
 };
@@ -181,7 +174,7 @@ export const getOfficerInfoApi = async (req, res) => {
         res.json({ officer, unassignedProgrammes, currentProgrammes });
 
     } catch (error) {
-        res.status(500).send("Database Error: " + error.message);
+        res.status(500).json({success: false, message: "Database error"});
     }
 
 };
@@ -220,7 +213,7 @@ export const postEditOfficerApi = async (req, res) => {
 
   } catch (error) {
     console.error("Error updating officer");
-    res.status(500).send("Database error");
+    res.status(500).json({success: false, message: "Database error"});
   }
 
 };
@@ -239,7 +232,7 @@ export const getViewProgrammesApi = async (req, res) => {
 
   } catch (error) {
     console.log("Database Error", error.sqlMessage);
-    res.status(500).send("Database Error: " + error.sqlMessage);
+    res.status(500).json({success: false, message: "Database error"});
   }
 
 };
@@ -266,7 +259,7 @@ export const getProgrammeInfoApi = async (req, res) => {
 
   } catch (error) {
     console.log("Database Error", error.sqlMessage);
-    res.status(500).send("Database Error: " + error.sqlMessage);
+    res.status(500).json({success: false, message: "Database error"});
   }
 
 };
@@ -307,11 +300,10 @@ export const postEditProgrammeApi = async (req, res) => {
     res.json({success: true, message: "Programme updated"});
 
   } catch (error) {
-    console.error("Error updating programme");
-    res.status(500).send("Database error");
-  }
+    console.error("Full Error Details:", error);
+    res.status(500).json({success: false, message: "Database error"});
 
-};
+}};
 
 
 
@@ -356,7 +348,7 @@ export const postManageModulesApi = async (req, res) => {
     res.json({success:true, message: "Modules updated"});
   } catch (error) {
     console.error("Error updating programme");
-    res.status(500).send("Database error");
+    res.status(500).json({success: false, message: "Database error"});
   }
 
 };

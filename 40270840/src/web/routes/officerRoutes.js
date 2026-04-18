@@ -1,7 +1,6 @@
 import express from 'express';
 import { getAddStudent, getOfficerDashboard, getStudentRecord, getViewStudents, postAddStudent, postApproveClass, postEditModules, postOverrideClassification, postSoftDeleteStudent, postUpdateStudentPersonalDetails } from '../controllers/officerController.js';
 import {isOfficer, isAssigned} from '../middleware/middleware.js';
-import { getViewOfficers } from '../controllers/adminController.js';
 
 const router = express.Router();
 

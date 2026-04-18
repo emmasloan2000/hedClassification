@@ -1,6 +1,4 @@
-import * as AdminModel from '../model/adminModel.js';
-import db from '../../config/db.js';
-import bcrypt from 'bcrypt';
+
 
 export const getAdminDashboard = async (req, res) => {
 
@@ -301,7 +299,7 @@ export const postEditProgramme = async (req, res) => {
 
   } catch (error) {
     console.error("Error updating programme");
-    res.status(500).send("Database error");
+    res.status(500).send("Database error: Check inputs carefully");
   }
 
 };

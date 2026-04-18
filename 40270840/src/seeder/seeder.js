@@ -261,10 +261,10 @@ INSERT INTO students (
     review_status
 ) VALUES 
 ('40200101', 'Alice', 'Wonder', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
-('40200102', 'Bob', 'Builder', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL, 'Flagged'),
-('40200103', 'Charlie', 'Alpha', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
+('40200102', 'Bob', 'Smith', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL, 'Flagged'),
+('40200103', 'Charlie', 'Allen', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
 ('40200104', 'Daisy', 'Miller', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Approved'),
-('40200105', 'Edward', 'Norton', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL, 'Flagged'),
+('40200105', 'Edward', 'Eddie', 3, 3, 1, '2025/2026', NULL, NULL, 0, NULL, 'Flagged'),
 ('40200106', 'Fiona', 'Gallagher', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval'),
 ('40200107', 'George', 'Hargreeves', 3, 3, 0, '2025/2026', NULL, NULL, 0, NULL, 'Awaiting Approval');
 
@@ -283,15 +283,15 @@ INSERT INTO students (
     review_status
 ) VALUES 
 -- Programme 3 (Mathematics) - Level 2
-('40200201', 'Oliver', 'Atom', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40200201', 'Oliver', 'Graham', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
 ('40200202', 'Bella', 'Swan', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
-('40200203', 'Kevin', 'Flynn', 2, 10, 1, '2026/2027', NULL, NULL, 0, NULL, NULL),
-('40200204', 'Diana', 'Prince', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40200203', 'Kevin', 'Hughes', 2, 10, 1, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40200204', 'Diana', 'Roberts', 2, 10, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
 
 -- Programme 1 (Computer Science) - Level 2
-('40100201', 'Elliot', 'Alderson', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
-('40100202', 'Angela', 'Moss', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
-('40100203', 'Tyrell', 'Wellick', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL, NULL);
+('40100201', 'Elliot', 'Billie', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40100202', 'Angela', 'Trainer', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL, NULL),
+('40100203', 'Tyrell', 'Wells', 2, 9, 0, '2026/2027', NULL, NULL, 0, NULL, NULL);
 
 
 

@@ -94,6 +94,32 @@ export const getStudentGrades = async (student_id) => {
 
 }
 
+//for graph
+
+export const getAllStudentGrades = async (programme_id) => {
+
+       let gradesSQL = `SELECT students.id AS student_real_id, students.student_number, students.first_name, students.last_name,
+      students.final_classification,
+      JSON_ARRAYAGG(
+      JSON_OBJECT(
+      'mark', grades.mark,
+      'is_resit', grades.is_resit,
+      'module_name', modules.module_name,
+      'credits', modules.credits,
+      'level', modules.level)
+      )AS allGrades
+      FROM students
+      LEFT JOIN grades ON students.id = grades.student_id
+      LEFT JOIN modules ON grades.module_id = modules.id
+      WHERE students.programme_id = ?
+      GROUP BY students.id`;
+    
+      const [rows] = await db.query(gradesSQL, [programme_id]);
+
+      return rows;
+
+}
+
 
 export const getProgrammeClassRules = async (programme_id) => {
 

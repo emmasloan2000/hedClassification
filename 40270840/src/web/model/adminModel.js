@@ -193,7 +193,7 @@ export const softDeleteOfficer = async (user_id) => {
 export const getProgrammeWithOfficersById = async (id) => {
 
   const selectProgrammeWithOfficerById = `SELECT programmes.id AS programme_id, programmes.programme_name, programmes.award_type, programmes.pathway, programmes.academic_year, programmes.y1_weight, programmes.y2_weight, programmes.y3_weight,
-    programmes.min_1st, programmes.min_2_1, programmes.min_2_2, programmes.min_3rd, programmes.max_failed_credits_allowed, 
+    programmes.min_1st, programmes.min_2_1, programmes.min_2_2, programmes.min_3rd, programmes.resit_capped, programmes.max_failed_credits_allowed, 
     programmes.min_compensation_mark, programmes.dissertation_min_pass, users.first_name, users.last_name 
   FROM programmes
   LEFT JOIN user_programmes ON programmes.id = user_programmes.programme_id
