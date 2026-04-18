@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 //allows for extensibility, rather tat hashing each password one by one
 const usersToSeed = [
     { first_name: 'Ellie', last_name: 'Smith', username: 'registry_admin', password: 'QUB2026', role_id: 1 },
-    { first_name: 'John', last_name: 'Rooney', username: 'class_officer1', password: 'Queens2026', role_id: 2 },
+    { first_name: 'Anne', last_name: 'Rooney', username: 'class_officer1', password: 'Queens2026', role_id: 2 },
     { first_name: 'Elena', last_name: 'Gilbert', username: 'class_officer2', password: 'password', role_id: 2 },
     { first_name: 'Meredith', last_name: 'Gray', username: 'class_officer3', password: 'officer3', role_id: 2 },
 ];

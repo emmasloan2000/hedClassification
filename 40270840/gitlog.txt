@@ -1,0 +1,313 @@
+commit 46179b3cb8be0a9dfb3d5be9525927d356932c48
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-18T07:14:55+01:00
+
+    Refinements
+
+0	1	40270840/src/api/api.js
+13	21	40270840/src/api/controllers/adminApiController.js
+270	240	40270840/src/api/controllers/officerApiController.js
+9	9	40270840/src/seeder/seeder.js
+55	46	40270840/src/utils/classification.js
+2	3	40270840/src/web/app.js
+2	4	40270840/src/web/controllers/adminController.js
+13	45	40270840/src/web/controllers/officerController.js
+1	1	40270840/src/web/model/adminModel.js
+26	0	40270840/src/web/model/officerModel.js
+0	1	40270840/src/web/routes/officerRoutes.js
+1	2	40270840/src/web/views/studentrecord.ejs
+6	3	40270840/src/web/views/viewstudents.ejs
+
+commit 3695fcb72657d17442d4814b8700aa93598ebfc5
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-17T03:25:53+01:00
+
+    API implemented
+
+4	2	40270840/src/api/api.js
+362	0	40270840/src/api/controllers/adminApiController.js
+230	2	40270840/src/api/controllers/officerApiController.js
+32	0	40270840/src/api/routes/adminApiRoutes.js
+14	3	40270840/src/api/routes/officerApiRoutes.js
+1	1	40270840/src/utils/classification.js
+292	313	40270840/src/web/controllers/adminController.js
+139	92	40270840/src/web/controllers/officerController.js
+2	0	40270840/src/web/middleware/middleware.js
+5	0	40270840/src/web/model/officerModel.js
+115	52	40270840/src/web/views/viewstudents.ejs
+19	0	package-lock.json
+1	0	package.json
+
+commit ef2a66ece9627af3296a436563ab5e20b19e04a7
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-16T03:30:00+01:00
+
+    Saving before change
+
+31	0	40270840/src/api/api.js
+0	0	40270840/src/api/controllers/adminApiController.js
+48	0	40270840/src/api/controllers/officerApiController.js
+0	0	40270840/src/api/routes/adminApiRoutes.js
+20	0	40270840/src/api/routes/officerApiRoutes.js
+13	13	40270840/src/utils/classification.js
+3	3	40270840/src/web/app.js
+3	2	40270840/src/web/controllers/adminController.js
+250	243	40270840/src/web/controllers/officerController.js
+29	2	40270840/src/web/middleware/middleware.js
+10	10	40270840/src/web/routes/officerRoutes.js
+
+commit 6183f1f3c08ebba6695ec7767a02adaff09082cf
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-13T01:18:22+01:00
+
+    Modularisation done
+
+11	896	40270840/src/web/app.js
+365	0	40270840/src/web/controllers/adminController.js
+293	0	40270840/src/web/controllers/officerController.js
+37	0	40270840/src/web/middleware/middleware.js
+265	0	40270840/src/web/model/adminModel.js
+198	0	40270840/src/web/model/officerModel.js
+33	0	40270840/src/web/routes/adminRoutes.js
+34	0	40270840/src/web/routes/officerRoutes.js
+2	2	40270840/src/web/views/studentrecord.ejs
+2	1	40270840/src/web/views/viewofficers.ejs
+2	3	40270840/src/web/views/viewprogrammes.ejs
+
+commit 765eaa68c72787a09c005b230d6fa4ea0f2f318c
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-12T03:05:46+01:00
+
+    Fixed some bugs
+
+0	0	40270840/src/api/api.js
+4	1	40270840/src/seeder/seeder.js
+42	33	40270840/src/utils/classification.js
+99	24	40270840/src/web/app.js
+0	108	40270840/src/web/views/addgrades.ejs
+1	8	40270840/src/web/views/addofficer.ejs
+1	8	40270840/src/web/views/addprogramme.ejs
+2	9	40270840/src/web/views/addstudent.ejs
+3	9	40270840/src/web/views/admin.ejs
+0	39	40270840/src/web/views/just in case
+4	8	40270840/src/web/views/officer.ejs
+2	9	40270840/src/web/views/officerinfo.ejs
+10	0	40270840/src/web/views/partials/navbar.ejs
+279	140	40270840/src/web/views/programmeinfo.ejs
+296	287	40270840/src/web/views/studentrecord.ejs
+3	8	40270840/src/web/views/viewofficers.ejs
+1	8	40270840/src/web/views/viewprogrammes.ejs
+31	22	40270840/src/web/views/viewstudents.ejs
+9	0	package-lock.json
+2	1	package.json
+
+commit abadb5864bcce40c5c0ca799340526619c1f6aba
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-11T00:58:39+01:00
+
+    Module editing changes
+
+1	0	40270840/src/seeder/seeder.js
+4	4	40270840/src/utils/classification.js
+138	45	40270840/src/web/app.js
+4	0	40270840/src/web/public/styles/ui.css
+108	0	40270840/src/web/views/addgrades.ejs
+34	30	40270840/src/web/views/addofficer.ejs
+73	0	40270840/src/web/views/addstudent.ejs
+26	435	40270840/src/web/views/just in case
+68	159	40270840/src/web/views/studentrecord.ejs
+34	16	40270840/src/web/views/viewstudents.ejs
+
+commit 10985ad2be45a0f8eca31ec0b47e78334b0d16c2
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-09T02:23:47+01:00
+
+    All routes implemented for classification forms
+
+132	0	40270840/src/web/app.js
+448	0	40270840/src/web/views/just in case
+107	97	40270840/src/web/views/studentrecord.ejs
+
+commit 77f96bd666becb7fa5c79399022c4198173e4d24
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-08T05:02:16+01:00
+
+    Student record page done
+
+3	3	40270840/src/seeder/seeder.js
+27	10	40270840/src/utils/classification.js
+13	2	40270840/src/web/app.js
+1	1	40270840/src/web/public/styles/ui.css
+460	0	40270840/src/web/views/studentrecord.ejs
+1	1	40270840/src/web/views/viewstudents.ejs
+
+commit 310c6d344cae9cdd0710d2ef8dea777998644e5d
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-07T05:51:42+01:00
+
+    Programme specific student list, classifcation calculation, base and dynamic rules
+
+116	107	40270840/src/seeder/seeder.js
+122	0	40270840/src/utils/classification.js
+75	6	40270840/src/web/app.js
+25	13	40270840/src/web/views/officer.ejs
+2	2	40270840/src/web/views/viewofficers.ejs
+4	4	40270840/src/web/views/viewprogrammes.ejs
+89	0	40270840/src/web/views/viewstudents.ejs
+
+commit c4fd0d6c493a3b4e37b763d35bc1067b42beef6c
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-06T04:32:39+01:00
+
+    Refined admin role routes and finished class officer dashboard
+
+198	45	40270840/src/seeder/seeder.js
+210	157	40270840/src/web/app.js
+51	3	40270840/src/web/views/officer.ejs
+4	1	40270840/src/web/views/officerinfo.ejs
+2	1	40270840/src/web/views/programmeinfo.ejs
+
+commit c1edcb6c57d56996d4f15e49c0f85c6e8ce4cc24
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-05T04:51:39+01:00
+
+    Forms edited to include assignments, filtering options done
+
+14	8	40270840/src/seeder/seeder.js
+130	40	40270840/src/web/app.js
+16	1	40270840/src/web/public/styles/ui.css
+1	1	40270840/src/web/views/addofficer.ejs
+47	4	40270840/src/web/views/addprogramme.ejs
+2	2	40270840/src/web/views/officerinfo.ejs
+53	8	40270840/src/web/views/programmeinfo.ejs
+17	2	40270840/src/web/views/viewofficers.ejs
+42	13	40270840/src/web/views/viewprogrammes.ejs
+
+commit 9a768bdf9f33d5d540f5b1b74139819c6d5c46ae
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-03T02:34:16+01:00
+
+    Secondary Actor done
+
+151	18	40270840/src/web/app.js
+1	1	40270840/src/web/views/addprogramme.ejs
+58	34	40270840/src/web/views/officerinfo.ejs
+134	0	40270840/src/web/views/programmeinfo.ejs
+66	0	40270840/src/web/views/viewprogrammes.ejs
+88	0	package-lock.json
+6	2	package.json
+
+commit e0550838119bbff39fdcfc639cbbb38ddbca3b92
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-02T02:40:25+01:00
+
+    Admin requirement to view and edit officers
+
+15	13	40270840/src/seeder/seeder.js
+70	2	40270840/src/web/app.js
+9	0	40270840/src/web/public/styles/ui.css
+9	1	40270840/src/web/views/addofficer.ejs
+7	7	40270840/src/web/views/addprogramme.ejs
+1	1	40270840/src/web/views/admin.ejs
+77	0	40270840/src/web/views/officerinfo.ejs
+72	0	40270840/src/web/views/viewofficers.ejs
+0	0	40270840/src/web/views/viewprogrammes.ejs
+4	0	package.json
+
+commit f524c7d91b8e13023f9c12dbd54e78e8f57807f1
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-04-01T02:21:55+01:00
+
+    Add programme creation route and validation logic
+
+28	4	40270840/src/seeder/seeder.js
+51	1	40270840/src/web/app.js
+-	-	40270840/src/web/public/.DS_Store
+-	-	40270840/src/web/public/media/.DS_Store
+-	-	40270840/src/web/public/media/quad.jpg
+16	2	40270840/src/web/public/styles/ui.css
+2	1	40270840/src/web/views/addofficer.ejs
+120	1	40270840/src/web/views/addprogramme.ejs
+
+commit 354e56caf94912246b6bff51fbf582a9bd3641aa
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-03-31T02:03:25+01:00
+
+    Add admin officer routed and session middleware
+
+115	20	40270840/src/web/app.js
+21	6	40270840/src/web/public/styles/ui.css
+49	1	40270840/src/web/views/addofficer.ejs
+40	40	40270840/src/web/views/admin.ejs
+1	2	40270840/src/web/views/login.ejs
+
+commit c4908275251db48a76674c0a503dba05b65b4cd9
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-03-30T03:25:18+01:00
+
+    Secondary actor dashboard
+
+-	-	.DS_Store
+-	-	40270840/.DS_Store
+-	-	40270840/src/.DS_Store
+4	2	40270840/src/seeder/seeder.js
+-	-	40270840/src/web/.DS_Store
+66	15	40270840/src/web/app.js
+-	-	40270840/src/web/public/.DS_Store
+-	-	40270840/src/web/public/media/.DS_Store
+-	-	40270840/src/web/public/media/interior.jpg
+-	-	40270840/src/web/public/media/logo.png
+-	-	40270840/src/web/public/media/logo2.png
+80	0	40270840/src/web/public/styles/ui.css
+14	0	40270840/src/web/views/addofficer.ejs
+14	0	40270840/src/web/views/addprogramme.ejs
+61	0	40270840/src/web/views/admin.ejs
+16	16	40270840/src/web/views/login.ejs
+16	0	40270840/src/web/views/officer.ejs
+
+commit cb51761577dfdb16129645066a4bdb61b8b42211
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-03-29T05:11:35+01:00
+
+    Finished the role-based login logic
+
+-	-	.DS_Store
+-	-	40270840/.DS_Store
+7	0	40270840/README.md
+-	-	40270840/src/.DS_Store
+13	0	40270840/src/config/db.js
+23	34	40270840/src/{seeder: => seeder}/seeder.js
+-	-	40270840/src/web/.DS_Store
+45	2	40270840/src/web/app.js
+-	-	40270840/src/web/public/.DS_Store
+-	-	40270840/src/web/public/media/building.jpg
+-	-	40270840/src/web/public/media/logo.png
+53	0	40270840/src/web/public/styles/ui.css
+47	5	40270840/src/web/views/login.ejs
+95	0	package-lock.json
+1	0	package.json
+
+commit 8ea3534b1c689ff7b88ddb9ba1f9dca714d4644f
+Author: Emma Sloan <esloan420@qub.ac.uk>
+Date:   2026-03-27T00:46:16Z
+
+    initial set up commit
+
+-	-	.DS_Store
+1	0	.gitignore
+-	-	40270840/.DS_Store
+0	0	README.md => 40270840/README.md
+-	-	40270840/src/.DS_Store
+283	0	40270840/src/seeder:/seeder.js
+26	0	40270840/src/web/app.js
+15	0	40270840/src/web/views/login.ejs
+1319	0	package-lock.json
+24	0	package.json
+
+commit a6f62679d55f064e65159f663027d52d9d8352fc
+Author: 40270840 <esloan420@qub.ac.uk>
+Date:   2026-03-24T15:26:53Z
+
+    Initial commit
+
+93	0	README.md

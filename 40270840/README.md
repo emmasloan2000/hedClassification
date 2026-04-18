@@ -1,10 +1,27 @@
 # HEdClass
 
-install dependencies
-create 40270840 database in phpmyadmin
-ensure root/password in config file match tour computer
-run seeder.js
-run app
+Test Credentials
+
+Institutional Administrator
+Username: registry_admin
+Password: QUB2026
+
+Classification Officer
+Username: class_officer1
+Password: Queens2026
+
+Instructions
+
+1. Clone the repository
+2. Install dependencies (in root folder): npm install
+3. Ensure details (root and password) in db.js match your computer
+4. Start MAMP or XAMPP
+5. Create database called 40270840 in phpMyAdmin
+6. Seed the data: node 40270840/src/seeder/seeder.js
+7. Start the Web App: npx nodemon 40270840/src/web/app.js
+   Access via http://localhost:3000
+8. Start the API: npx nodemon 40270840/src/api/api.js
+   Access via http://localhost:4000
 
 
 
